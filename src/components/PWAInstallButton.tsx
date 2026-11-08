@@ -8,13 +8,14 @@ interface PWAInstallButtonProps {
 }
 
 export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({ 
-  variant = 'header',
+  variant = 'card',
   className = '' 
 }) => {
-  const { isInstallable, isInstalled, isIOS, install } = usePWAInstall();
+  const { isInstallable, isInstalled, isIOS, install, markAsInstalled } = usePWAInstall();
   const [showIOSGuide, setShowIOSGuide] = useState(false);
   const [installing, setInstalling] = useState(false);
 
+  // অ্যাপ ইনস্টল থাকলে এই নোটিশ ও বাটন আর থাকবে না
   if (isInstalled) {
     return null;
   }
@@ -28,7 +29,10 @@ export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({
     if (isInstallable) {
       setInstalling(true);
       try {
-        await install();
+        const success = await install();
+        if (success) {
+          setShowIOSGuide(false);
+        }
       } finally {
         setInstalling(false);
       }
@@ -51,25 +55,46 @@ export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({
           <Download className="w-3 h-3 stroke-[2.5]" />
         </button>
       ) : (
-        <button
-          onClick={handleInstallClick}
-          className={`w-full flex items-center justify-between p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/5 border border-amber-200/80 hover:border-amber-300 transition-all cursor-pointer ${className}`}
+        <div
+          className={`relative w-full flex items-center justify-between p-3.5 rounded-2xl bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/5 border border-amber-200/80 hover:border-amber-300 transition-all ${className}`}
         >
-          <div className="flex items-center gap-3">
-            <img src="/app_logo.png" alt="SmartStudy" className="w-10 h-10 rounded-2xl shadow-xs object-cover" />
-            <div className="text-left">
+          <div 
+            onClick={handleInstallClick}
+            className="flex items-center gap-3 cursor-pointer flex-1 min-w-0"
+          >
+            <img src="/app_logo.png" alt="SmartStudy" className="w-10 h-10 rounded-2xl shadow-xs object-cover shrink-0" />
+            <div className="text-left min-w-0">
               <h4 className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                <span>স্মার্টস্টাডি অ্যাপ ফোনে ইনস্টল করুন</span>
-                <span className="text-[10px] bg-amber-100 text-amber-800 px-1.5 py-0.2 rounded-full font-bold">PWA</span>
+                <span className="truncate">স্মার্টস্টাডি অ্যাপ ফোনে ইনস্টল করুন</span>
+                <span className="text-[10px] bg-amber-100 text-amber-800 px-1.5 py-0.2 rounded-full font-bold shrink-0">PWA</span>
               </h4>
-              <p className="text-[11px] text-slate-500">হোম স্ক্রিনে শর্টকাট আইকন হিসেবে সরাসরি ব্যবহার করুন</p>
+              <p className="text-[11px] text-slate-500 truncate">হোম স্ক্রিনে শর্টকাট আইকন হিসেবে সরাসরি ব্যবহার করুন</p>
             </div>
           </div>
-          <div className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-xl shadow-2xs flex items-center gap-1">
-            <Download className="w-3.5 h-3.5" />
-            <span>ইনস্টল</span>
+          
+          <div className="flex items-center gap-1.5 shrink-0 ml-2">
+            <button
+              onClick={handleInstallClick}
+              disabled={installing}
+              className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 active:scale-95 text-white text-xs font-bold rounded-xl shadow-2xs flex items-center gap-1 cursor-pointer transition-all disabled:opacity-75"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span>{installing ? 'হচ্ছে...' : 'ইনস্টল'}</span>
+            </button>
+
+            {/* ইতিমধ্যে ইনস্টল করা থাকলে নোটিশটি বন্ধ করার অপশন */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                markAsInstalled();
+              }}
+              title="ইতিমধ্যে ইনস্টল করা থাকলে এটি বন্ধ করুন"
+              className="w-7 h-7 rounded-full bg-slate-200/60 hover:bg-slate-300 text-slate-500 hover:text-slate-700 flex items-center justify-center transition-all cursor-pointer"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
           </div>
-        </button>
+        </div>
       )}
 
       {/* Guide Modal for iOS Safari / Manual Installation */}
@@ -126,12 +151,23 @@ export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({
               )}
             </div>
 
-            <button
-              onClick={() => setShowIOSGuide(false)}
-              className="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-xs active:scale-98 transition-all cursor-pointer"
-            >
-              বুঝেছি, বন্ধ করুন
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  markAsInstalled();
+                  setShowIOSGuide(false);
+                }}
+                className="flex-1 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs shadow-xs active:scale-98 transition-all cursor-pointer"
+              >
+                ইনস্টল সম্পন্ন হয়েছে
+              </button>
+              <button
+                onClick={() => setShowIOSGuide(false)}
+                className="py-2.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs active:scale-98 transition-all cursor-pointer"
+              >
+                বন্ধ
+              </button>
+            </div>
           </div>
         </div>
       )}

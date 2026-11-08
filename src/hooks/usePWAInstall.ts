@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -9,38 +9,65 @@ const INSTALLED_STORAGE_KEY = 'smartstudy_app_is_installed';
 
 export function usePWAInstall() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
-  const [isInstalled, setIsInstalled] = useState<boolean>(() => {
+  
+  const checkIsStandaloneOrInstalled = useCallback((): boolean => {
     try {
       if (typeof window === 'undefined') return false;
-      const saved = localStorage.getItem(INSTALLED_STORAGE_KEY) === 'true';
+      
+      // 1. Persistent storage flag
+      if (localStorage.getItem(INSTALLED_STORAGE_KEY) === 'true') {
+        return true;
+      }
+
+      // 2. Window display-mode checks (PWA standalone, fullscreen, minimal-ui)
       const isStandalone =
         window.matchMedia('(display-mode: standalone)').matches ||
-        (window.navigator as unknown as { standalone?: boolean }).standalone === true ||
-        document.referrer.startsWith('android-app://');
-      return saved || isStandalone;
+        window.matchMedia('(display-mode: fullscreen)').matches ||
+        window.matchMedia('(display-mode: minimal-ui)').matches;
+      if (isStandalone) return true;
+
+      // 3. iOS standalone mode
+      if ((window.navigator as unknown as { standalone?: boolean }).standalone === true) {
+        return true;
+      }
+
+      // 4. Android WebAPK / TWA launcher referrer
+      if (typeof document !== 'undefined' && document.referrer && document.referrer.startsWith('android-app://')) {
+        return true;
+      }
+
+      return false;
     } catch {
       return false;
     }
-  });
+  }, []);
+
+  const [isInstalled, setIsInstalled] = useState<boolean>(() => checkIsStandaloneOrInstalled());
   const [isIOS, setIsIOS] = useState(false);
 
+  const markAsInstalled = useCallback(() => {
+    setIsInstalled(true);
+    setDeferredPrompt(null);
+    try {
+      localStorage.setItem(INSTALLED_STORAGE_KEY, 'true');
+      window.dispatchEvent(new Event('smartstudy-app-installed'));
+    } catch {}
+  }, []);
+
   useEffect(() => {
-    const checkInstalled = () => {
-      const isStandalone =
-        window.matchMedia('(display-mode: standalone)').matches ||
-        (window.navigator as unknown as { standalone?: boolean }).standalone === true ||
-        document.referrer.startsWith('android-app://');
-      const saved = localStorage.getItem(INSTALLED_STORAGE_KEY) === 'true';
+    // Check initial state
+    if (checkIsStandaloneOrInstalled()) {
+      setIsInstalled(true);
+    }
 
-      if (isStandalone || saved) {
-        setIsInstalled(true);
-        try {
-          localStorage.setItem(INSTALLED_STORAGE_KEY, 'true');
-        } catch {}
-      }
-    };
-
-    checkInstalled();
+    // Check Chrome / Android getInstalledRelatedApps API
+    if (typeof navigator !== 'undefined' && 'getInstalledRelatedApps' in navigator) {
+      (navigator as any).getInstalledRelatedApps().then((relatedApps: any[]) => {
+        if (relatedApps && relatedApps.length > 0) {
+          markAsInstalled();
+        }
+      }).catch(() => {});
+    }
 
     // Detect iOS devices
     const userAgent = window.navigator.userAgent.toLowerCase();
@@ -49,38 +76,56 @@ export function usePWAInstall() {
 
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
-      // If already installed, don't keep prompt
-      if (localStorage.getItem(INSTALLED_STORAGE_KEY) === 'true') return;
+      // If already installed, don't store prompt
+      if (checkIsStandaloneOrInstalled()) return;
       setDeferredPrompt(e as BeforeInstallPromptEvent);
     };
 
     const handleAppInstalled = () => {
+      markAsInstalled();
+    };
+
+    const handleCustomInstallEvent = () => {
       setIsInstalled(true);
-      setDeferredPrompt(null);
-      try {
-        localStorage.setItem(INSTALLED_STORAGE_KEY, 'true');
-      } catch {}
+    };
+
+    // Watch for media query change to standalone
+    const mql = window.matchMedia('(display-mode: standalone)');
+    const handleDisplayChange = (e: MediaQueryListEvent) => {
+      if (e.matches) {
+        markAsInstalled();
+      }
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
     window.addEventListener('appinstalled', handleAppInstalled);
+    window.addEventListener('smartstudy-app-installed', handleCustomInstallEvent);
+    window.addEventListener('focus', () => {
+      if (checkIsStandaloneOrInstalled()) {
+        setIsInstalled(true);
+      }
+    });
+
+    if (mql && mql.addEventListener) {
+      mql.addEventListener('change', handleDisplayChange);
+    }
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
       window.removeEventListener('appinstalled', handleAppInstalled);
+      window.removeEventListener('smartstudy-app-installed', handleCustomInstallEvent);
+      if (mql && mql.removeEventListener) {
+        mql.removeEventListener('change', handleDisplayChange);
+      }
     };
-  }, []);
+  }, [checkIsStandaloneOrInstalled, markAsInstalled]);
 
   const install = async () => {
     if (!deferredPrompt) return false;
     await deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
     if (outcome === 'accepted') {
-      setIsInstalled(true);
-      setDeferredPrompt(null);
-      try {
-        localStorage.setItem(INSTALLED_STORAGE_KEY, 'true');
-      } catch {}
+      markAsInstalled();
       return true;
     }
     return false;
@@ -91,5 +136,6 @@ export function usePWAInstall() {
     isInstalled,
     isIOS,
     install,
+    markAsInstalled,
   };
 }
