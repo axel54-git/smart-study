@@ -1,0 +1,19 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // SmartStudy educational content collection
+    match /smartstudy/{document=**} {
+      // Public read access for students to ensure high-speed loading of courses and videos
+      allow read: if true;
+      
+      // Strict write, update, and delete access only for authenticated admins
+      allow create, update, delete: if request.auth != null && 
+        (request.auth.token.admin == true || request.auth.uid == 'smartstudy-admin-master');
+    }
+
+    // Default deny all other collections to prevent unauthorized access and privilege escalation
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

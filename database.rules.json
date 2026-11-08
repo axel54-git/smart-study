@@ -1,0 +1,31 @@
+{
+  "rules": {
+    "smartstudy": {
+      "content": {
+        ".read": true,
+        ".write": "auth != null && (auth.token.admin === true || auth.uid === 'smartstudy-admin-master')",
+        ".validate": "newData.hasChildren(['homeClasses', 'coursesClasses', 'mcqClasses'])",
+        "homeClasses": {
+          ".validate": "newData.val() != null"
+        },
+        "coursesClasses": {
+          ".validate": "newData.val() != null"
+        },
+        "mcqClasses": {
+          ".validate": "newData.val() != null"
+        },
+        "adsConfig": {
+          ".write": "auth != null && auth.token.admin === true"
+        }
+      },
+      "$other": {
+        ".read": false,
+        ".write": false
+      }
+    },
+    "$other": {
+      ".read": false,
+      ".write": false
+    }
+  }
+}

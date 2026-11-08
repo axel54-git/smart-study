@@ -37,6 +37,7 @@ import {
   MCQChapterItem 
 } from './data/mcqData';
 import { AdsSystemConfig, DEFAULT_ADS_CONFIG } from './data/adsConfig';
+import { verifyAdminCredentials } from './utils/security';
 
 import { firebaseSync } from './services/firebaseSync';
 
@@ -155,21 +156,32 @@ export default function App() {
     return () => unsub();
   }, []);
 
-  // Admin Modal State (PIN: 1234)
+  // Admin Modal State (Cryptographically Secured)
   const [showAdminPinModal, setShowAdminPinModal] = useState(false);
   const [pinInput, setPinInput] = useState('');
   const [pinError, setPinError] = useState('');
   const [isAdminOpen, setIsAdminOpen] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
 
-  const handlePinSubmit = (e: React.FormEvent) => {
+  const handlePinSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (pinInput === '1234') {
-      setIsAdminOpen(true);
-      setShowAdminPinModal(false);
-      setPinInput('');
-      setPinError('');
-    } else {
-      setPinError('ভুল পাসওয়ার্ড! সঠিক পাসওয়ার্ড: 1234');
+    if (!pinInput.trim()) {
+      setPinError('অনুগ্রহ করে পাসওয়ার্ড দিন');
+      return;
+    }
+    setIsVerifying(true);
+    try {
+      const res = await verifyAdminCredentials(pinInput);
+      if (res.success) {
+        setIsAdminOpen(true);
+        setShowAdminPinModal(false);
+        setPinInput('');
+        setPinError('');
+      } else {
+        setPinError(res.error || 'ভুল পাসওয়ার্ড! অনুগ্রহ করে সঠিক পাসওয়ার্ড দিন।');
+      }
+    } finally {
+      setIsVerifying(false);
     }
   };
 
@@ -433,7 +445,7 @@ export default function App() {
         }}
       />
 
-      {/* Admin PIN Login Modal (PIN: 1234) */}
+      {/* Admin Security Login Modal */}
       {showAdminPinModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
           <div className="w-full max-w-xs bg-white rounded-3xl p-6 shadow-2xl border border-slate-100 text-center relative">
@@ -452,34 +464,32 @@ export default function App() {
               <Lock className="w-6 h-6" />
             </div>
 
-            <h3 className="text-base font-bold text-slate-900">এডমিন পিন প্রবেশ</h3>
+            <h3 className="text-base font-bold text-slate-900">এডমিন প্যানেলে প্রবেশ</h3>
             <p className="text-xs text-slate-500 mt-1">ফুলস্ক্রিন এডমিন প্যানেলে প্রবেশ করতে পাসওয়ার্ড দিন</p>
 
             <form onSubmit={handlePinSubmit} className="mt-4 space-y-3">
               <input
                 type="password"
-                maxLength={4}
                 autoFocus
-                placeholder="****"
+                placeholder="পাসওয়ার্ড লিখুন"
                 value={pinInput}
                 onChange={e => {
                   setPinInput(e.target.value);
                   setPinError('');
                 }}
-                className="w-full text-center text-xl tracking-widest font-mono py-2 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                className="w-full text-center text-lg tracking-wider font-mono py-2.5 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-amber-500"
               />
 
               {pinError && (
-                <p className="text-xs text-rose-600 font-semibold">{pinError}</p>
+                <p className="text-xs text-rose-600 font-semibold leading-relaxed">{pinError}</p>
               )}
-
-              <p className="text-[11px] text-amber-700 bg-amber-50 py-1 rounded">ডিফল্ট পাসওয়ার্ড: <strong>1234</strong></p>
 
               <button
                 type="submit"
-                className="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold shadow-sm"
+                disabled={isVerifying}
+                className="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 active:scale-98 disabled:opacity-60 text-white text-xs font-bold shadow-sm transition-all"
               >
-                প্রবেশ করুন
+                {isVerifying ? 'যাচাই করা হচ্ছে...' : 'প্রবেশ করুন'}
               </button>
             </form>
           </div>

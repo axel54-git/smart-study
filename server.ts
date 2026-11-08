@@ -2,6 +2,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import crypto from 'crypto';
 import { createServer as createViteServer } from 'vite';
 import { GoogleGenAI } from '@google/genai';
 
@@ -9,6 +10,41 @@ dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// In-memory rate limiting store for API Security
+interface RateLimitRecord {
+  count: number;
+  resetAt: number;
+}
+const rateLimits = new Map<string, RateLimitRecord>();
+
+function checkRateLimit(key: string, maxRequests: number, windowMs: number): boolean {
+  const now = Date.now();
+  const record = rateLimits.get(key);
+  if (!record || now > record.resetAt) {
+    rateLimits.set(key, { count: 1, resetAt: now + windowMs });
+    return true;
+  }
+  if (record.count >= maxRequests) {
+    return false;
+  }
+  record.count++;
+  return true;
+}
+
+// Periodic cleanup of expired rate limit entries
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, record] of rateLimits.entries()) {
+    if (now > record.resetAt) {
+      rateLimits.delete(key);
+    }
+  }
+}, 5 * 60 * 1000);
+
+// Cryptographic hash for admin verification (Plaintext is never stored)
+const ADMIN_SERVER_SALT = 'smartstudy_admin_salt_sec_2026';
+const ADMIN_SERVER_HASH = '4fbab923fba1a9e733800b42545d22e22264bc45bae21e82365aef68cdeedf1f';
 
 // Comprehensive Knowledge Generator for SmartStudy Platform
 function generateSmartStudyKnowledgeReply(message: string): string {
@@ -121,7 +157,18 @@ async function startServer() {
   const app = express();
   const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 
-  app.use(express.json());
+  app.use(express.json({ limit: '1mb' }));
+
+  // Security headers middleware
+  app.use((req, res, next) => {
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-XSS-Protection', '1; mode=block');
+    // Allow iframe embedding only for the dedicated ad-frame route
+    if (!req.path.startsWith('/api/ad-frame') && !req.path.startsWith('/ad-frame.html')) {
+      res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+    }
+    next();
+  });
 
   const apiKey = (process.env.GEMINI_API_KEY || '').trim();
 
@@ -166,12 +213,49 @@ CRITICAL LENGTH & FORMATTING RULES (YOU MUST STRICTLY FOLLOW THESE):
 
 Reply primarily in clear, polished Bengali (বাংলা) or clean bilingual Bengali-English where necessary.`;
 
-  // API Route for SmartStudy AI Assistant
+  // Server-side Admin Verification Endpoint (Rate Limited & Cryptographically Salted)
+  app.post('/api/admin/verify', (req, res) => {
+    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
+    const clientKey = `admin_auth_${ip}`;
+
+    // Rate limiting: Maximum 5 attempts per 15 minutes per IP
+    const allowed = checkRateLimit(clientKey, 5, 15 * 60 * 1000);
+    if (!allowed) {
+      return res.status(429).json({
+        error: 'অতিরিক্ত ব্যর্থ চেষ্টার কারণে সাময়িকভাবে প্রবেশ বন্ধ করা হয়েছে। ১৫ মিনিট পর আবার চেষ্টা করুন।'
+      });
+    }
+
+    const { password } = req.body;
+    if (!password || typeof password !== 'string') {
+      return res.status(400).json({ error: 'পাসওয়ার্ড প্রদান করা আবশ্যক' });
+    }
+
+    const hashedInput = crypto
+      .createHash('sha256')
+      .update(`${ADMIN_SERVER_SALT}:${password.trim()}`)
+      .digest('hex');
+
+    if (hashedInput === ADMIN_SERVER_HASH) {
+      rateLimits.delete(clientKey);
+      const sessionToken = crypto.randomBytes(32).toString('hex');
+      return res.json({ success: true, authorized: true, token: sessionToken });
+    }
+
+    return res.status(401).json({ error: 'ভুল পাসওয়ার্ড! অনুগ্রহ করে সঠিক পাসওয়ার্ড দিন।' });
+  });
+
+  // API Route for SmartStudy AI Assistant (Protected with Rate Limiting)
   app.post('/api/chat', async (req, res) => {
     try {
+      const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
+      if (!checkRateLimit(`chat_${ip}`, 45, 60 * 1000)) {
+        return res.status(429).json({ error: 'অনুগ্রহ করে একটু অপেক্ষা করুন। একসাথে অনেকগুলো অনুরোধ করা হয়েছে।' });
+      }
+
       const { message, history } = req.body;
-      if (!message || typeof message !== 'string') {
-        return res.status(400).json({ error: 'Message is required' });
+      if (!message || typeof message !== 'string' || message.length > 2500) {
+        return res.status(400).json({ error: 'বৈধ মেসেজ প্রদান করুন (সর্বোচ্চ ২৫০০ অক্ষর)' });
       }
 
       // Try Gemini API if key is configured

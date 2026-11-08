@@ -418,13 +418,13 @@ export const FirebaseAdminSettings: React.FC<FirebaseAdminSettingsProps> = ({
       </div>
 
       {/* 4. Firebase Database Rules Quick Help */}
-      <div className="bg-slate-100 rounded-2xl p-3.5 text-xs text-slate-600 space-y-1.5 border border-slate-200">
+      <div className="bg-slate-100 rounded-2xl p-3.5 text-xs text-slate-600 space-y-2 border border-slate-200">
         <div className="flex items-center gap-1.5 font-bold text-slate-800">
-          <Info className="w-4 h-4 text-amber-600 shrink-0" />
-          <span>ফায়ারবেস কনসোল রুলস পরামর্শ (Firebase Security Rules):</span>
+          <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+          <span>নিরাপত্তা সুরক্ষা রুলস (Firebase Security Hardened Rules):</span>
         </div>
         <p className="text-[11px] leading-relaxed text-slate-600">
-          রিয়েলটাইম ডেটাবেসে এডমিন ও ইউজারদের তাৎক্ষণিক এক্সেস নিশ্চিত করতে আপনার Firebase Console &gt; Realtime Database &gt; Rules-এ <code>{`{ "rules": { ".read": true, ".write": true } }`}</code> সেট করা থাকতে পারে। যদি কোনো কারণে ক্লাউড অফলাইন থাকে, তবে আমাদের অ্যাপ নিরবচ্ছিন্নভাবে লোকাল মেমোরি থেকে সম্পূর্ণ ডাটা ইউজারদের দেখাবে।
+          ডাটাবেস সম্পূর্ণ সুরক্ষিত রাখতে Firebase Console &gt; Realtime Database &gt; Rules-এ <code>{`{ "rules": { "smartstudy": { "content": { ".read": true, ".write": "auth != null" } } } }`}</code> সেট করুন। এতে সাধারণ দর্শনার্থীরা শুধুমাত্র দ্রুত পড়ার অনুমতি পাবে, কিন্তু অনুমতি ব্যতীত কেউ ডাটা মুছে বা পরিবর্তন করতে পারবে না।
         </p>
       </div>
 

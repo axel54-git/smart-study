@@ -442,7 +442,7 @@ export const StudentToolsProfile: React.FC<StudentToolsProfileProps> = ({
           <span className="text-xs font-bold text-slate-800 leading-tight">
             এডমিন প্যানেল
           </span>
-          <span className="text-[9px] font-bold text-amber-700 mt-0.5">PIN: 1234</span>
+          <span className="text-[9px] font-bold text-amber-700 mt-0.5">সুরক্ষিত প্রবেশ</span>
         </button>
       </div>
 
