@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { usePWAInstall } from '../hooks/usePWAInstall';
-import { Download, X, Smartphone, Sparkles } from 'lucide-react';
+import { Download, X, Smartphone } from 'lucide-react';
 
 export const InstallPromptModal: React.FC = () => {
   const { isInstallable, isInstalled, isIOS, install, markAsInstalled } = usePWAInstall();
@@ -41,11 +41,7 @@ export const InstallPromptModal: React.FC = () => {
   };
 
   const handleInstallClick = async () => {
-    if (isIOS) {
-      setShowIOSGuide(true);
-      return;
-    }
-
+    // 1. If native install prompt is ready, trigger immediately
     if (isInstallable) {
       setIsInstalling(true);
       try {
@@ -53,13 +49,23 @@ export const InstallPromptModal: React.FC = () => {
         if (success) {
           markAsInstalled();
           setIsOpen(false);
+          return;
         }
+      } catch (err) {
+        console.warn('Install error:', err);
       } finally {
         setIsInstalling(false);
       }
-    } else {
-      setShowIOSGuide(true);
     }
+
+    // 2. If inside iframe (like AI Studio preview), opening directly in browser enables Chrome native install prompt
+    try {
+      if (typeof window !== 'undefined' && window.self !== window.top) {
+        window.open(window.location.href, '_blank');
+      }
+    } catch {}
+
+    setShowIOSGuide(true);
   };
 
   // If installed, never display anything
@@ -80,16 +86,13 @@ export const InstallPromptModal: React.FC = () => {
           <X className="w-4 h-4" />
         </button>
 
-        {/* App Logo */}
-        <div className="relative mx-auto w-16 h-16 mb-3 mt-1">
+        {/* App Logo without star */}
+        <div className="mx-auto w-16 h-16 mb-3 mt-1">
           <img
             src="/app_logo.png"
             alt="SmartStudy App"
             className="w-16 h-16 rounded-2xl shadow-md object-cover border-2 border-amber-100"
           />
-          <div className="absolute -bottom-1 -right-1 bg-amber-500 text-white rounded-full p-1 shadow-xs">
-            <Sparkles className="w-3 h-3" />
-          </div>
         </div>
 
         {/* Title in English */}
@@ -103,25 +106,35 @@ export const InstallPromptModal: React.FC = () => {
           <span>Official Mobile App</span>
         </div>
 
-        {/* Note: Middle text and bullet points highlighted in red box have been completely deleted as requested */}
-
-        {/* Action Buttons in English */}
-        <div className="mt-5 space-y-2.5">
+        {/* Action Buttons in English - Compact Sized Button as requested */}
+        <div className="mt-5 flex flex-col items-center gap-2">
           <button
             onClick={handleInstallClick}
             disabled={isInstalling}
-            className="w-full py-3 rounded-2xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-600 hover:to-orange-600 active:scale-98 text-white font-black text-xs shadow-md shadow-orange-500/25 flex items-center justify-center gap-2 transition-all cursor-pointer disabled:opacity-75"
+            className="px-6 py-2 rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 hover:from-amber-600 hover:to-orange-600 active:scale-95 text-white font-bold text-xs shadow-sm shadow-orange-500/20 inline-flex items-center justify-center gap-1.5 transition-all cursor-pointer disabled:opacity-75"
           >
-            <Download className="w-4 h-4 stroke-[2.5]" />
+            <Download className="w-3.5 h-3.5 stroke-[2.5]" />
             <span>{isInstalling ? 'Installing...' : 'Install App'}</span>
           </button>
 
-          <button
-            onClick={handleClose}
-            className="w-full py-1.5 text-slate-400 hover:text-slate-600 text-xs font-semibold transition-colors cursor-pointer"
-          >
-            Maybe Later
-          </button>
+          <div className="flex items-center justify-center gap-3 pt-1 text-[11px] text-slate-400">
+            <button
+              onClick={() => {
+                markAsInstalled();
+                setIsOpen(false);
+              }}
+              className="hover:text-amber-600 transition-colors cursor-pointer"
+            >
+              Already Installed
+            </button>
+            <span>•</span>
+            <button
+              onClick={handleClose}
+              className="hover:text-slate-600 transition-colors cursor-pointer"
+            >
+              Maybe Later
+            </button>
+          </div>
         </div>
 
         {/* iOS / Manual Guide (in English) */}

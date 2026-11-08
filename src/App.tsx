@@ -15,7 +15,9 @@ import {
   Calculator, 
   ChevronRight, 
   ChevronLeft,
-  User 
+  User,
+  Share2,
+  Check
 } from 'lucide-react';
 import { 
   ClassCategory, 
@@ -185,6 +187,41 @@ export default function App() {
     }
   };
 
+  // Profile Page Share link copy state
+  const [copiedShare, setCopiedShare] = useState(false);
+  const [showShareToast, setShowShareToast] = useState(false);
+
+  const handleShareClick = async () => {
+    const url = 'https://tinyurl.com/3hspw75u';
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(url);
+      } else {
+        const textarea = document.createElement('textarea');
+        textarea.value = url;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+      }
+      setCopiedShare(true);
+      setShowShareToast(true);
+      setTimeout(() => setCopiedShare(false), 2500);
+      setTimeout(() => setShowShareToast(false), 3000);
+
+      // Trigger Web Share API on mobile if available
+      if (navigator.share) {
+        navigator.share({
+          title: 'SmartStudy App',
+          text: 'SmartStudy লার্নিং অ্যাপ - ক্লাস ও পরীক্ষা:',
+          url: url,
+        }).catch(() => {});
+      }
+    } catch (e) {
+      console.warn('Share copy error:', e);
+    }
+  };
+
   const bgImage = '/assets/aistudio/1793637299357_4f44950f.jpg';
 
   // ---------------- FULLSCREEN ADMIN PANEL ----------------
@@ -330,13 +367,31 @@ export default function App() {
               />
             </div>
 
-            {/* Right: Active Page Title Badge (when inside subpages) */}
+            {/* Right: Active Page Title Badge OR Profile Page Share Button (শুধুমাত্র প্রোফাইল পেজেই থাকবে) */}
             <div className="flex items-center gap-2 shrink-0">
-              {navState.title && (
+              {navState.title ? (
                 <div className="px-3 py-1 rounded-full bg-white/95 text-slate-800 text-xs font-bold border border-slate-200/80 shadow-2xs max-w-[170px] truncate text-right">
                   <span className="truncate">{navState.title}</span>
                 </div>
-              )}
+              ) : currentTab === 'profile' ? (
+                <button
+                  onClick={handleShareClick}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 active:scale-95 text-white text-xs font-bold shadow-xs hover:shadow-sm transition-all cursor-pointer"
+                  title="শেয়ার লিংক কপি করুন"
+                >
+                  {copiedShare ? (
+                    <>
+                      <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+                      <span>কপি হয়েছে!</span>
+                    </>
+                  ) : (
+                    <>
+                      <Share2 className="w-3.5 h-3.5 stroke-[2.3]" />
+                      <span>শেয়ার</span>
+                    </>
+                  )}
+                </button>
+              ) : null}
             </div>
           </header>
         </div>
@@ -486,6 +541,14 @@ export default function App() {
               </button>
             </form>
           </div>
+        </div>
+      )}
+
+      {/* Share Toast Notification */}
+      {showShareToast && (
+        <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 bg-slate-900/95 backdrop-blur-md text-white text-xs font-bold px-4 py-2 rounded-full shadow-lg border border-slate-700 flex items-center gap-2 animate-bounce pointer-events-none">
+          <Check className="w-4 h-4 text-emerald-400 stroke-[3]" />
+          <span>লিংক কপি করা হয়েছে! (https://tinyurl.com/3hspw75u)</span>
         </div>
       )}
 

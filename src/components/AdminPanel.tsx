@@ -32,6 +32,7 @@ import {
   Search,
   RefreshCw,
   Megaphone,
+  Smartphone,
   X
 } from 'lucide-react';
 import { 
@@ -48,9 +49,10 @@ import { uploadToImgBB } from '../utils/imageUpload';
 import { firebaseSync, AppSyncData } from '../services/firebaseSync';
 import { FirebaseAdminSettings } from './FirebaseAdminSettings';
 import { AdsAdminManager } from './AdsAdminManager';
+import { AppAnalyticsAdmin } from './AppAnalyticsAdmin';
 import { AdsSystemConfig } from '../data/adsConfig';
 
-export type AdminSection = 'home' | 'courses' | 'mcq' | 'ads' | 'firebase';
+export type AdminSection = 'home' | 'courses' | 'mcq' | 'ads' | 'analytics' | 'firebase';
 
 interface AdminPanelProps {
   homeClasses: ClassCategory[];
@@ -1411,7 +1413,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
               <span className="truncate">
                 এডমিন: <span className="text-amber-600">
-                  {activeSection === 'home' ? 'হোম কন্টেন্ট' : activeSection === 'courses' ? 'কোর্স কন্টেন্ট' : activeSection === 'mcq' ? 'এমসিকিউ কন্টেন্ট' : activeSection === 'ads' ? 'বিজ্ঞাপন ব্যবস্থাপনা' : 'ফায়ারবেস ক্লাউড'}
+                  {activeSection === 'home' ? 'হোম কন্টেন্ট' : activeSection === 'courses' ? 'কোর্স কন্টেন্ট' : activeSection === 'mcq' ? 'এমসিকিউ কন্টেন্ট' : activeSection === 'ads' ? 'বিজ্ঞাপন ব্যবস্থাপনা' : activeSection === 'analytics' ? 'অ্যাপ ডাউনলোড ও ডিভাইস' : 'ফায়ারবেস ক্লাউড'}
                 </span>
               </span>
             </div>
@@ -1426,8 +1428,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
             </button>
           </div>
 
-          {/* SECTION SWITCHER: 5 SEPARATE TABS INCLUDING ADS MANAGEMENT */}
-          <div className="grid grid-cols-5 gap-1 bg-slate-100 p-0.5 rounded-xl text-xs font-bold">
+          {/* SECTION SWITCHER: 6 SEPARATE TABS INCLUDING APP ANALYTICS */}
+          <div className="grid grid-cols-6 gap-1 bg-slate-100 p-0.5 rounded-xl text-xs font-bold">
             <button
               onClick={() => handleSwitchSection('home')}
               className={`py-1 px-1 rounded-lg flex items-center justify-center gap-1 transition-all ${
@@ -1477,6 +1479,18 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
             </button>
 
             <button
+              onClick={() => handleSwitchSection('analytics')}
+              className={`py-1 px-1 rounded-lg flex items-center justify-center gap-1 transition-all ${
+                activeSection === 'analytics'
+                  ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+              }`}
+            >
+              <Smartphone className="w-3 h-3" />
+              <span className="truncate">৫. অ্যাপস</span>
+            </button>
+
+            <button
               onClick={() => handleSwitchSection('firebase')}
               className={`py-1 px-1 rounded-lg flex items-center justify-center gap-1 transition-all ${
                 activeSection === 'firebase'
@@ -1485,12 +1499,12 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
               }`}
             >
               <Cloud className="w-3 h-3" />
-              <span className="truncate">৫. ক্লাউড</span>
+              <span className="truncate">৬. ক্লাউড</span>
             </button>
           </div>
 
           {/* 4-Step Wizard Stepper - Visible only for Home, Courses, MCQ */}
-          {activeSection !== 'firebase' && activeSection !== 'ads' && (
+          {activeSection !== 'firebase' && activeSection !== 'ads' && activeSection !== 'analytics' && (
             <div className="grid grid-cols-4 gap-1 text-[11px] font-bold">
               {[
                 { step: 1, label: '১. শ্রেণি' },
@@ -1521,6 +1535,11 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
       {/* Main Content Form - Compact Padding */}
       <main className="max-w-4xl w-full mx-auto p-2 sm:p-3 flex-1">
         
+        {/* APP ANALYTICS TAB (নতুন মেনু: কয়জন ডাউনলোড করেছে ও সক্রিয় ফোনের রিয়েলটাইম তথ্য) */}
+        {activeSection === 'analytics' && (
+          <AppAnalyticsAdmin />
+        )}
+
         {/* FIREBASE CLOUD SETTINGS TAB */}
         {activeSection === 'firebase' && (
           <FirebaseAdminSettings
@@ -1539,7 +1558,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
         )}
 
         {/* STEP 1: CLASSES */}
-        {activeSection !== 'firebase' && activeSection !== 'ads' && currentStep === 1 && (
+        {activeSection !== 'firebase' && activeSection !== 'ads' && activeSection !== 'analytics' && currentStep === 1 && (
           <div className="space-y-2.5 animate-fade-in">
             {/* Quick Add Bar & Presets for Class */}
             <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/80 rounded-xl p-2.5 shadow-2xs space-y-2">

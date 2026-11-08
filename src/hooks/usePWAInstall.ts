@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
+import { appAnalytics } from '../services/appAnalytics';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -51,6 +52,7 @@ export function usePWAInstall() {
     try {
       localStorage.setItem(INSTALLED_STORAGE_KEY, 'true');
       window.dispatchEvent(new Event('smartstudy-app-installed'));
+      appAnalytics.recordAppInstall();
     } catch {}
   }, []);
 
