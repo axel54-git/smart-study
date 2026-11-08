@@ -1,0 +1,873 @@
+import React, { useState, useEffect } from 'react';
+import { 
+  Calculator, 
+  X, 
+  Calendar, 
+  Clock, 
+  BookOpen, 
+  CheckSquare, 
+  ListTodo, 
+  Bell, 
+  Sparkles, 
+  Plus, 
+  Trash2, 
+  Play, 
+  Pause, 
+  RotateCcw, 
+  Check, 
+  ChevronRight,
+  FlaskConical,
+  Binary,
+  Layers,
+  ArrowRightLeft,
+  Lock
+} from 'lucide-react';
+import { BannerAd } from './BannerAd';
+import { PWAInstallButton } from './PWAInstallButton';
+import { AdsSystemConfig } from '../data/adsConfig';
+
+interface StudentToolsProfileProps {
+  onOpenCalculator: () => void;
+  onOpenAdmin: () => void;
+  adsConfig?: AdsSystemConfig;
+}
+
+type ActiveModal = 
+  | null
+  | 'ageCalc'
+  | 'gpaCalc'
+  | 'converter'
+  | 'numberConverter'
+  | 'formulas'
+  | 'notebook'
+  | 'todoList'
+  | 'reminder'
+  | 'routine'
+  | 'pomodoro'
+  | 'checklist';
+
+export const StudentToolsProfile: React.FC<StudentToolsProfileProps> = ({ 
+  onOpenCalculator, 
+  onOpenAdmin,
+  adsConfig
+}) => {
+  const [activeModal, setActiveModal] = useState<ActiveModal>(null);
+
+  // ---------------- AGE CALCULATOR STATE ----------------
+  const [birthDate, setBirthDate] = useState('2007-01-01');
+  const [ageResult, setAgeResult] = useState<{ years: number; months: number; days: number } | null>(null);
+
+  const calculateAge = (dateStr: string) => {
+    if (!dateStr) return;
+    const birth = new Date(dateStr);
+    const today = new Date();
+    let years = today.getFullYear() - birth.getFullYear();
+    let months = today.getMonth() - birth.getMonth();
+    let days = today.getDate() - birth.getDate();
+
+    if (days < 0) {
+      months -= 1;
+      const prevMonth = new Date(today.getFullYear(), today.getMonth(), 0);
+      days += prevMonth.getDate();
+    }
+    if (months < 0) {
+      years -= 1;
+      months += 12;
+    }
+    setAgeResult({ years: Math.max(0, years), months: Math.max(0, months), days: Math.max(0, days) });
+  };
+
+  useEffect(() => {
+    calculateAge(birthDate);
+  }, [birthDate]);
+
+  // ---------------- GPA CALCULATOR STATE ----------------
+  const [gpaSubjects, setGpaSubjects] = useState([
+    { name: 'বাংলা', grade: 5 },
+    { name: 'ইংরেজি', grade: 5 },
+    { name: 'গণিত', grade: 5 },
+    { name: 'আইসিটি', grade: 5 },
+    { name: 'পদার্থ / বিজ্ঞান', grade: 4 },
+  ]);
+
+  const gradeOptions = [
+    { label: 'A+ (5.0)', point: 5.0 },
+    { label: 'A (4.0)', point: 4.0 },
+    { label: 'A- (3.5)', point: 3.5 },
+    { label: 'B (3.0)', point: 3.0 },
+    { label: 'C (2.0)', point: 2.0 },
+    { label: 'D (1.0)', point: 1.0 },
+    { label: 'F (0.0)', point: 0.0 },
+  ];
+
+  const calculatedGPA = (
+    gpaSubjects.reduce((acc, s) => acc + s.grade, 0) / (gpaSubjects.length || 1)
+  ).toFixed(2);
+
+  // ---------------- NUMBER CONVERTER STATE ----------------
+  const [decInput, setDecInput] = useState('255');
+  const [binVal, setBinVal] = useState('11111111');
+  const [hexVal, setHexVal] = useState('FF');
+  const [octVal, setOctVal] = useState('377');
+
+  const handleDecChange = (val: string) => {
+    setDecInput(val);
+    const num = parseInt(val, 10);
+    if (!isNaN(num)) {
+      setBinVal(num.toString(2));
+      setHexVal(num.toString(16).toUpperCase());
+      setOctVal(num.toString(8));
+    } else {
+      setBinVal('');
+      setHexVal('');
+      setOctVal('');
+    }
+  };
+
+  // ---------------- UNIT CONVERTER STATE ----------------
+  const [unitCategory, setUnitCategory] = useState<'length' | 'weight' | 'temp'>('length');
+  const [inputVal, setInputVal] = useState('1');
+  const [fromUnit, setFromUnit] = useState('meter');
+  const [toUnit, setToUnit] = useState('kilometer');
+
+  const convertUnits = () => {
+    const val = parseFloat(inputVal) || 0;
+    if (unitCategory === 'length') {
+      let meters = val;
+      if (fromUnit === 'kilometer') meters = val * 1000;
+      if (fromUnit === 'mile') meters = val * 1609.34;
+      if (fromUnit === 'feet') meters = val * 0.3048;
+
+      if (toUnit === 'meter') return meters.toFixed(3);
+      if (toUnit === 'kilometer') return (meters / 1000).toFixed(4);
+      if (toUnit === 'mile') return (meters / 1609.34).toFixed(4);
+      if (toUnit === 'feet') return (meters / 0.3048).toFixed(2);
+    }
+    if (unitCategory === 'weight') {
+      let kg = val;
+      if (fromUnit === 'gram') kg = val / 1000;
+      if (fromUnit === 'pound') kg = val * 0.453592;
+
+      if (toUnit === 'kg') return kg.toFixed(3);
+      if (toUnit === 'gram') return (kg * 1000).toFixed(1);
+      if (toUnit === 'pound') return (kg / 0.453592).toFixed(3);
+    }
+    return val.toString();
+  };
+
+  // ---------------- POMODORO TIMER STATE ----------------
+  const [pomoSeconds, setPomoSeconds] = useState(25 * 60);
+  const [pomoActive, setPomoActive] = useState(false);
+
+  useEffect(() => {
+    let interval: any = null;
+    if (pomoActive && pomoSeconds > 0) {
+      interval = setInterval(() => {
+        setPomoSeconds(sec => sec - 1);
+      }, 1000);
+    } else if (pomoSeconds === 0) {
+      setPomoActive(false);
+    }
+    return () => clearInterval(interval);
+  }, [pomoActive, pomoSeconds]);
+
+  const formatPomoTime = (sec: number) => {
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  };
+
+  // ---------------- NOTEBOOK STATE (LOCALSTORAGE) ----------------
+  const [notes, setNotes] = useState<string[]>(() => {
+    const saved = localStorage.getItem('smartstudy_student_notes');
+    return saved ? JSON.parse(saved) : [
+      'এইচএসসি আইসিটি ৩য় অধ্যায়ের ২ এর পরিপূরক রিভিশন দিতে হবে।',
+      'উচ্চতর গণিত ম্যাট্রিক্সের বিপরীত ম্যাট্রিক্স নির্ণয় অনুশীলন।'
+    ];
+  });
+  const [newNote, setNewNote] = useState('');
+
+  const handleAddNote = () => {
+    if (!newNote.trim()) return;
+    const updated = [newNote.trim(), ...notes];
+    setNotes(updated);
+    localStorage.setItem('smartstudy_student_notes', JSON.stringify(updated));
+    setNewNote('');
+  };
+
+  const handleDeleteNote = (idx: number) => {
+    const updated = notes.filter((_, i) => i !== idx);
+    setNotes(updated);
+    localStorage.setItem('smartstudy_student_notes', JSON.stringify(updated));
+  };
+
+  // ---------------- TO-DO LIST STATE (LOCALSTORAGE) ----------------
+  const [todos, setTodos] = useState<{ id: string; text: string; done: boolean }[]>(() => {
+    const saved = localStorage.getItem('smartstudy_student_todos');
+    return saved ? JSON.parse(saved) : [
+      { id: '1', text: 'বাংলা ১ম পত্র অপরিচিতা গল্পের এমসিকিউ পরীক্ষা', done: true },
+      { id: '2', text: 'পদার্থবিজ্ঞান ৩য় অধ্যায় লেকচার ক্লাস দেখা', done: false },
+      { id: '3', text: 'fx-570MS দিয়ে দ্বিঘাত সমীকরণ সমাধান প্র্যাকটিস', done: false },
+    ];
+  });
+  const [newTodo, setNewTodo] = useState('');
+
+  const handleAddTodo = () => {
+    if (!newTodo.trim()) return;
+    const updated = [...todos, { id: Date.now().toString(), text: newTodo.trim(), done: false }];
+    setTodos(updated);
+    localStorage.setItem('smartstudy_student_todos', JSON.stringify(updated));
+    setNewTodo('');
+  };
+
+  const handleToggleTodo = (id: string) => {
+    const updated = todos.map(t => t.id === id ? { ...t, done: !t.done } : t);
+    setTodos(updated);
+    localStorage.setItem('smartstudy_student_todos', JSON.stringify(updated));
+  };
+
+  // ---------------- CHECKLIST STATE ----------------
+  const [checkItems, setCheckItems] = useState([
+    { id: 'c1', label: 'এডমিট কার্ড ও রেজিস্ট্রেশন কার্ড', checked: true },
+    { id: 'c2', label: 'fx-570MS সাইন্টিফিক ক্যালকুলেটর ব্যাটারি চেক', checked: true },
+    { id: 'c3', label: 'কালো কালির বলপয়েন্ট কলম ও পেন্সিল', checked: false },
+    { id: 'c4', label: 'জ্যামিতি বক্স ও স্কেল', checked: true },
+    { id: 'c5', label: 'বোর্ড এমসিকিউ রিভিশন শিট', checked: false },
+  ]);
+
+  return (
+    <div className="space-y-4 animate-fade-in py-1">
+      {/* PWA App Install Banner Card */}
+      <PWAInstallButton variant="card" />
+
+      {/* ---------------- 1. CALCULATORS & STUDY TOOLS GRID (3x2) ---------------- */}
+      <div className="grid grid-cols-3 gap-3">
+        {/* 1. Scientific Calculator (Casio fx-570MS) - Exactly 1 Grid Box as requested */}
+        <button
+          onClick={onOpenCalculator}
+          className="bg-white rounded-2xl p-3 flex flex-col items-center justify-center text-center shadow-xs border border-slate-100 hover:shadow-md hover:border-amber-300 hover:scale-[1.02] active:scale-95 transition-all cursor-pointer min-h-[105px] group"
+        >
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-slate-900 via-slate-800 to-amber-900/60 p-0.5 shadow-sm flex items-center justify-center mb-1.5 group-hover:scale-105 transition-transform">
+            <div className="w-full h-full bg-slate-900 rounded-[10px] flex items-center justify-center border border-slate-700/60">
+              <Calculator className="w-6 h-6 text-amber-400 stroke-[2]" />
+            </div>
+          </div>
+          <span className="text-xs font-bold text-slate-800 leading-tight">
+            Calculator
+          </span>
+          <span className="text-[9px] font-bold text-amber-600 mt-0.5">
+            fx-570MS
+          </span>
+        </button>
+
+        {/* 2. Unit Converter */}
+        <button
+          onClick={() => setActiveModal('converter')}
+          className="bg-white rounded-2xl p-3 flex flex-col items-center justify-center text-center shadow-xs border border-slate-100 hover:shadow-md hover:border-teal-300 hover:scale-[1.02] active:scale-95 transition-all cursor-pointer min-h-[105px] group"
+        >
+          <div className="w-12 h-12 rounded-xl bg-teal-50 border border-teal-100 flex items-center justify-center mb-1.5 shadow-2xs group-hover:scale-105 transition-transform">
+            <ArrowRightLeft className="w-6 h-6 text-teal-600 stroke-[2.2]" />
+          </div>
+          <span className="text-xs font-bold text-slate-800 leading-tight">
+            Converter
+          </span>
+          <span className="text-[9px] text-slate-400 mt-0.5">ইউনিট</span>
+        </button>
+
+        {/* 3. Age Calculator */}
+        <button
+          onClick={() => setActiveModal('ageCalc')}
+          className="bg-white rounded-2xl p-3 flex flex-col items-center justify-center text-center shadow-xs border border-slate-100 hover:shadow-md hover:border-orange-300 hover:scale-[1.02] active:scale-95 transition-all cursor-pointer min-h-[105px] group"
+        >
+          <div className="w-12 h-12 rounded-xl bg-orange-50 border border-orange-100 flex items-center justify-center mb-1.5 shadow-2xs group-hover:scale-105 transition-transform relative">
+            <Calendar className="w-6 h-6 text-orange-600 stroke-[2.2]" />
+            <span className="absolute bottom-2 text-[8px] font-black text-orange-800 leading-none">25</span>
+          </div>
+          <span className="text-xs font-bold text-slate-800 leading-tight">
+            Age Calc
+          </span>
+          <span className="text-[9px] text-slate-400 mt-0.5">বয়স হিসাব</span>
+        </button>
+
+        {/* 4. Formulas */}
+        <button
+          onClick={() => setActiveModal('formulas')}
+          className="bg-white rounded-2xl p-3 flex flex-col items-center justify-center text-center shadow-xs border border-slate-100 hover:shadow-md hover:border-purple-300 hover:scale-[1.02] active:scale-95 transition-all cursor-pointer min-h-[105px] group"
+        >
+          <div className="w-12 h-12 rounded-xl bg-purple-50 border border-purple-100 flex items-center justify-center mb-1.5 shadow-2xs group-hover:scale-105 transition-transform">
+            <FlaskConical className="w-6 h-6 text-purple-600 stroke-[2.2]" />
+          </div>
+          <span className="text-xs font-bold text-slate-800 leading-tight">
+            Formulas
+          </span>
+          <span className="text-[9px] text-slate-400 mt-0.5">সূত্রাবলী</span>
+        </button>
+
+        {/* 5. GPA Calculator */}
+        <button
+          onClick={() => setActiveModal('gpaCalc')}
+          className="bg-white rounded-2xl p-3 flex flex-col items-center justify-center text-center shadow-xs border border-slate-100 hover:shadow-md hover:border-amber-300 hover:scale-[1.02] active:scale-95 transition-all cursor-pointer min-h-[105px] group"
+        >
+          <div className="w-12 h-12 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center mb-1.5 shadow-2xs group-hover:scale-105 transition-transform">
+            <span className="font-mono text-sm font-black text-amber-700">GPA</span>
+          </div>
+          <span className="text-xs font-bold text-slate-800 leading-tight">
+            GPA Calculator
+          </span>
+          <span className="text-[9px] text-slate-400 mt-0.5">জিপিএ</span>
+        </button>
+
+        {/* 6. Number Converter */}
+        <button
+          onClick={() => setActiveModal('numberConverter')}
+          className="bg-white rounded-2xl p-3 flex flex-col items-center justify-center text-center shadow-xs border border-slate-100 hover:shadow-md hover:border-blue-300 hover:scale-[1.02] active:scale-95 transition-all cursor-pointer min-h-[105px] group"
+        >
+          <div className="w-12 h-12 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center mb-1.5 shadow-2xs group-hover:scale-105 transition-transform">
+            <Binary className="w-6 h-6 text-blue-600 stroke-[2.2]" />
+          </div>
+          <span className="text-xs font-bold text-slate-800 leading-tight">
+            Number Converter
+          </span>
+          <span className="text-[9px] text-slate-400 mt-0.5">বাইনারি/হেক্স</span>
+        </button>
+      </div>
+
+      {/* লাল দাগ ব্যানার অ্যাড (টুলস গ্রিডের মাঝে) */}
+      <BannerAd type="red" config={adsConfig?.redBanner} />
+
+      {/* ---------------- 2. SECTION TITLE: ব্যক্তিগত (Personal) ---------------- */}
+      <div className="flex items-center gap-2 pt-2 px-1">
+        <div className="w-5 h-5 rounded-md bg-slate-100 flex items-center justify-center text-slate-600">
+          <Layers className="w-3.5 h-3.5" />
+        </div>
+        <h3 className="text-sm font-extrabold text-slate-800">
+          ব্যক্তিগত (Personal)
+        </h3>
+      </div>
+
+      {/* ---------------- 3. PERSONAL TOOLS GRID (3x2) ---------------- */}
+      <div className="grid grid-cols-3 gap-3">
+        {/* 7. Notebook */}
+        <button
+          onClick={() => setActiveModal('notebook')}
+          className="bg-white rounded-2xl p-3 flex flex-col items-center justify-center text-center shadow-xs border border-slate-100 hover:shadow-md hover:border-amber-300 hover:scale-[1.02] active:scale-95 transition-all cursor-pointer min-h-[105px] group"
+        >
+          <div className="w-12 h-12 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center mb-1.5 shadow-2xs group-hover:scale-105 transition-transform">
+            <BookOpen className="w-6 h-6 text-amber-700 stroke-[2.2]" />
+          </div>
+          <span className="text-xs font-bold text-slate-800 leading-tight">
+            Notebook
+          </span>
+          <span className="text-[9px] text-slate-400 mt-0.5">নোটবুক</span>
+        </button>
+
+        {/* 8. To-Do List */}
+        <button
+          onClick={() => setActiveModal('todoList')}
+          className="bg-white rounded-2xl p-3 flex flex-col items-center justify-center text-center shadow-xs border border-slate-100 hover:shadow-md hover:border-cyan-300 hover:scale-[1.02] active:scale-95 transition-all cursor-pointer min-h-[105px] group"
+        >
+          <div className="w-12 h-12 rounded-xl bg-cyan-50 border border-cyan-100 flex items-center justify-center mb-1.5 shadow-2xs group-hover:scale-105 transition-transform">
+            <ListTodo className="w-6 h-6 text-cyan-700 stroke-[2.2]" />
+          </div>
+          <span className="text-xs font-bold text-slate-800 leading-tight">
+            To-Do List
+          </span>
+          <span className="text-[9px] text-slate-400 mt-0.5">কাজের তালিকা</span>
+        </button>
+
+        {/* 9. Reminder */}
+        <button
+          onClick={() => setActiveModal('reminder')}
+          className="bg-white rounded-2xl p-3 flex flex-col items-center justify-center text-center shadow-xs border border-slate-100 hover:shadow-md hover:border-emerald-300 hover:scale-[1.02] active:scale-95 transition-all cursor-pointer min-h-[105px] group"
+        >
+          <div className="w-12 h-12 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center mb-1.5 shadow-2xs group-hover:scale-105 transition-transform">
+            <Bell className="w-6 h-6 text-emerald-600 stroke-[2.2]" />
+          </div>
+          <span className="text-xs font-bold text-slate-800 leading-tight">
+            Reminder
+          </span>
+          <span className="text-[9px] text-slate-400 mt-0.5">রিমাইন্ডার</span>
+        </button>
+
+        {/* 10. Routine */}
+        <button
+          onClick={() => setActiveModal('routine')}
+          className="bg-white rounded-2xl p-3 flex flex-col items-center justify-center text-center shadow-xs border border-slate-100 hover:shadow-md hover:border-indigo-300 hover:scale-[1.02] active:scale-95 transition-all cursor-pointer min-h-[105px] group"
+        >
+          <div className="w-12 h-12 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center mb-1.5 shadow-2xs group-hover:scale-105 transition-transform">
+            <Clock className="w-6 h-6 text-indigo-600 stroke-[2.2]" />
+          </div>
+          <span className="text-xs font-bold text-slate-800 leading-tight">
+            Routine
+          </span>
+          <span className="text-[9px] text-slate-400 mt-0.5">ক্লাস রুটিন</span>
+        </button>
+
+        {/* 11. Pomodoro */}
+        <button
+          onClick={() => setActiveModal('pomodoro')}
+          className="bg-white rounded-2xl p-3 flex flex-col items-center justify-center text-center shadow-xs border border-slate-100 hover:shadow-md hover:border-rose-300 hover:scale-[1.02] active:scale-95 transition-all cursor-pointer min-h-[105px] group"
+        >
+          <div className="w-12 h-12 rounded-xl bg-rose-50 border border-rose-100 flex items-center justify-center mb-1.5 shadow-2xs group-hover:scale-105 transition-transform">
+            <span className="text-rose-600 font-mono font-black text-xs">25m</span>
+          </div>
+          <span className="text-xs font-bold text-slate-800 leading-tight">
+            Pomodoro
+          </span>
+          <span className="text-[9px] text-slate-400 mt-0.5">টাইমার</span>
+        </button>
+
+        {/* 12. Checklist */}
+        <button
+          onClick={() => setActiveModal('checklist')}
+          className="bg-white rounded-2xl p-3 flex flex-col items-center justify-center text-center shadow-xs border border-slate-100 hover:shadow-md hover:border-lime-300 hover:scale-[1.02] active:scale-95 transition-all cursor-pointer min-h-[105px] group"
+        >
+          <div className="w-12 h-12 rounded-xl bg-lime-50 border border-lime-100 flex items-center justify-center mb-1.5 shadow-2xs group-hover:scale-105 transition-transform">
+            <CheckSquare className="w-6 h-6 text-lime-600 stroke-[2.2]" />
+          </div>
+          <span className="text-xs font-bold text-slate-800 leading-tight">
+            Checklist
+          </span>
+          <span className="text-[9px] text-slate-400 mt-0.5">পরীক্ষা চেকলিস্ট</span>
+        </button>
+
+        {/* 13. Admin Panel - Moved from top header into Profile as requested */}
+        <button
+          onClick={onOpenAdmin}
+          className="bg-white rounded-2xl p-3 flex flex-col items-center justify-center text-center shadow-xs border border-amber-200 hover:shadow-md hover:border-amber-400 hover:scale-[1.02] active:scale-95 transition-all cursor-pointer min-h-[105px] group bg-gradient-to-b from-amber-50/40 to-white"
+        >
+          <div className="w-12 h-12 rounded-xl bg-amber-500 text-white flex items-center justify-center mb-1.5 shadow-sm shadow-amber-500/20 group-hover:scale-105 transition-transform">
+            <Lock className="w-6 h-6 stroke-[2.2]" />
+          </div>
+          <span className="text-xs font-bold text-slate-800 leading-tight">
+            এডমিন প্যানেল
+          </span>
+          <span className="text-[9px] font-bold text-amber-700 mt-0.5">PIN: 1234</span>
+        </button>
+      </div>
+
+      {/* সবুজ দাগ ব্যানার অ্যাড (প্রোফাইল পেজের একদম নিচে) */}
+      <BannerAd type="green" config={adsConfig?.greenBanner} />
+
+      {/* ---------------- INTERACTIVE MODALS FOR TOOLS ---------------- */}
+      {activeModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fade-in">
+          <div className="w-full max-w-sm bg-white rounded-3xl p-5 shadow-2xl border border-slate-100 max-h-[85vh] overflow-y-auto relative">
+            {/* Close Button */}
+            <button
+              onClick={() => setActiveModal(null)}
+              className="absolute top-4 right-4 p-1.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            {/* AGE CALC MODAL */}
+            {activeModal === 'ageCalc' && (
+              <div className="space-y-4">
+                <div className="text-center">
+                  <h3 className="text-base font-bold text-slate-900">বয়স ক্যালকুলেটর (Age Calc)</h3>
+                  <p className="text-xs text-slate-500">আপনার সঠিক জন্মতারিখ নির্বাচন করুন</p>
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-slate-700 block mb-1">জন্মতারিখ:</label>
+                  <input
+                    type="date"
+                    value={birthDate}
+                    onChange={e => setBirthDate(e.target.value)}
+                    className="w-full p-2.5 rounded-xl border border-slate-200 text-sm font-semibold"
+                  />
+                </div>
+                {ageResult && (
+                  <div className="bg-orange-50 border border-orange-200 rounded-2xl p-4 text-center">
+                    <p className="text-xs text-orange-800 font-semibold mb-1">আপনার বর্তমান বয়স</p>
+                    <div className="flex justify-around items-center pt-2">
+                      <div>
+                        <span className="text-2xl font-black text-orange-950">{ageResult.years}</span>
+                        <p className="text-[10px] text-orange-700 font-bold">বছর</p>
+                      </div>
+                      <div>
+                        <span className="text-2xl font-black text-orange-950">{ageResult.months}</span>
+                        <p className="text-[10px] text-orange-700 font-bold">মাস</p>
+                      </div>
+                      <div>
+                        <span className="text-2xl font-black text-orange-950">{ageResult.days}</span>
+                        <p className="text-[10px] text-orange-700 font-bold">দিন</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* GPA CALC MODAL */}
+            {activeModal === 'gpaCalc' && (
+              <div className="space-y-4">
+                <div className="text-center">
+                  <h3 className="text-base font-bold text-slate-900">জিপিএ ক্যালকুলেটর (GPA Calc)</h3>
+                  <p className="text-xs text-slate-500">বিষয় ও প্রাপ্ত গ্রেড পয়েন্ট</p>
+                </div>
+                <div className="space-y-2 max-h-52 overflow-y-auto pr-1">
+                  {gpaSubjects.map((sub, idx) => (
+                    <div key={idx} className="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100 text-xs">
+                      <span className="font-semibold text-slate-800">{sub.name}</span>
+                      <select
+                        value={sub.grade}
+                        onChange={e => {
+                          const updated = [...gpaSubjects];
+                          updated[idx].grade = parseFloat(e.target.value);
+                          setGpaSubjects(updated);
+                        }}
+                        className="p-1 rounded-lg border border-slate-200 font-bold text-amber-700 bg-white"
+                      >
+                        {gradeOptions.map(g => (
+                          <option key={g.point} value={g.point}>{g.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                  ))}
+                </div>
+                <div className="p-3 bg-amber-50 border border-amber-200 rounded-2xl text-center">
+                  <p className="text-xs text-amber-800 font-semibold">আপনার মোট আনুমানিক জিপিএ</p>
+                  <span className="text-3xl font-black text-amber-900">{calculatedGPA}</span>
+                  <p className="text-[10px] text-amber-700 font-bold mt-0.5">
+                    {parseFloat(calculatedGPA) >= 5 ? '🌟 গোল্ডেন A+ প্রস্তুতি!' : 'সফল প্রস্তুতি চালিয়ে যান'}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* UNIT CONVERTER MODAL */}
+            {activeModal === 'converter' && (
+              <div className="space-y-4">
+                <div className="text-center">
+                  <h3 className="text-base font-bold text-slate-900">ইউনিট কনভার্টার (Converter)</h3>
+                  <p className="text-xs text-slate-500">দৈর্ঘ্য ও ওজনের সহজ রূপান্তর</p>
+                </div>
+                <div className="flex gap-2 justify-center">
+                  <button
+                    onClick={() => {
+                      setUnitCategory('length');
+                      setFromUnit('meter');
+                      setToUnit('kilometer');
+                    }}
+                    className={`px-3 py-1 text-xs font-bold rounded-lg ${unitCategory === 'length' ? 'bg-teal-600 text-white' : 'bg-slate-100 text-slate-700'}`}
+                  >
+                    দৈর্ঘ্য
+                  </button>
+                  <button
+                    onClick={() => {
+                      setUnitCategory('weight');
+                      setFromUnit('kg');
+                      setToUnit('pound');
+                    }}
+                    className={`px-3 py-1 text-xs font-bold rounded-lg ${unitCategory === 'weight' ? 'bg-teal-600 text-white' : 'bg-slate-100 text-slate-700'}`}
+                  >
+                    ওজন
+                  </button>
+                </div>
+                <div className="space-y-2">
+                  <input
+                    type="number"
+                    value={inputVal}
+                    onChange={e => setInputVal(e.target.value)}
+                    className="w-full p-2.5 rounded-xl border border-slate-200 text-sm font-semibold"
+                    placeholder="মান লিখুন"
+                  />
+                  <div className="flex items-center gap-2 text-xs">
+                    <select
+                      value={fromUnit}
+                      onChange={e => setFromUnit(e.target.value)}
+                      className="flex-1 p-2 rounded-xl border border-slate-200 bg-white font-semibold"
+                    >
+                      {unitCategory === 'length' ? (
+                        <>
+                          <option value="meter">মিটার</option>
+                          <option value="kilometer">কিলোমিটার</option>
+                          <option value="mile">মাইল</option>
+                          <option value="feet">ফুট</option>
+                        </>
+                      ) : (
+                        <>
+                          <option value="kg">কিলোগ্রাম (kg)</option>
+                          <option value="gram">গ্রাম (g)</option>
+                          <option value="pound">পাউন্ড (lb)</option>
+                        </>
+                      )}
+                    </select>
+                    <span className="font-bold text-slate-400">হতে</span>
+                    <select
+                      value={toUnit}
+                      onChange={e => setToUnit(e.target.value)}
+                      className="flex-1 p-2 rounded-xl border border-slate-200 bg-white font-semibold"
+                    >
+                      {unitCategory === 'length' ? (
+                        <>
+                          <option value="kilometer">কিলোমিটার</option>
+                          <option value="meter">মিটার</option>
+                          <option value="mile">মাইল</option>
+                          <option value="feet">ফুট</option>
+                        </>
+                      ) : (
+                        <>
+                          <option value="pound">পাউন্ড (lb)</option>
+                          <option value="kg">কিলোগ্রাম (kg)</option>
+                          <option value="gram">গ্রাম (g)</option>
+                        </>
+                      )}
+                    </select>
+                  </div>
+                </div>
+                <div className="p-3 bg-teal-50 border border-teal-200 rounded-2xl text-center">
+                  <p className="text-xs text-teal-800 font-semibold">ফলাফল</p>
+                  <span className="text-2xl font-black text-teal-950">{convertUnits()}</span>
+                </div>
+              </div>
+            )}
+
+            {/* NUMBER CONVERTER MODAL */}
+            {activeModal === 'numberConverter' && (
+              <div className="space-y-3">
+                <div className="text-center">
+                  <h3 className="text-base font-bold text-slate-900">সংখ্যা রূপান্তর (Number Converter)</h3>
+                  <p className="text-xs text-slate-500">আইসিটি বাইনারি, ডেসিমাল ও হেক্সাডেসিমাল</p>
+                </div>
+                <div>
+                  <label className="text-[11px] font-bold text-slate-700 block mb-1">দশমিক (Decimal):</label>
+                  <input
+                    type="number"
+                    value={decInput}
+                    onChange={e => handleDecChange(e.target.value)}
+                    className="w-full p-2 rounded-xl border border-slate-200 text-xs font-mono font-bold"
+                  />
+                </div>
+                <div className="space-y-1.5 text-xs">
+                  <div className="p-2 rounded-xl bg-blue-50 border border-blue-200 flex justify-between items-center">
+                    <span className="font-bold text-blue-900">Binary (২):</span>
+                    <span className="font-mono font-bold text-blue-800 break-all">{binVal || '0'}</span>
+                  </div>
+                  <div className="p-2 rounded-xl bg-slate-50 border border-slate-200 flex justify-between items-center">
+                    <span className="font-bold text-slate-900">Hexadecimal (১৬):</span>
+                    <span className="font-mono font-bold text-slate-800">{hexVal || '0'}</span>
+                  </div>
+                  <div className="p-2 rounded-xl bg-slate-50 border border-slate-200 flex justify-between items-center">
+                    <span className="font-bold text-slate-900">Octal (৮):</span>
+                    <span className="font-mono font-bold text-slate-800">{octVal || '0'}</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* FORMULAS MODAL */}
+            {activeModal === 'formulas' && (
+              <div className="space-y-3">
+                <div className="text-center">
+                  <h3 className="text-base font-bold text-slate-900">গুরুত্বপূর্ণ সূত্রাবলী (Formulas)</h3>
+                  <p className="text-xs text-slate-500">পদার্থ, গণিত ও রসায়নের কুইক রেফারেন্স</p>
+                </div>
+                <div className="space-y-2 max-h-60 overflow-y-auto text-xs pr-1">
+                  <div className="p-2.5 rounded-xl bg-purple-50 border border-purple-200">
+                    <span className="font-bold text-purple-900">গণিত: দ্বিপদী ও ত্রিকোণমিতি</span>
+                    <p className="text-purple-800 font-mono mt-1">sin²θ + cos²θ = 1</p>
+                    <p className="text-purple-800 font-mono">x = (-b ± √(b² - 4ac)) / (2a)</p>
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-indigo-50 border border-indigo-200">
+                    <span className="font-bold text-indigo-900">পদার্থবিজ্ঞান: গতি ও বল</span>
+                    <p className="text-indigo-800 font-mono mt-1">v = u + at | s = ut + ½at²</p>
+                    <p className="text-indigo-800 font-mono">F = ma | E = mc²</p>
+                  </div>
+                  <div className="p-2.5 rounded-xl bg-amber-50 border border-amber-200">
+                    <span className="font-bold text-amber-900">রসায়ন: আদর্শ গ্যাস সমীকরণ</span>
+                    <p className="text-amber-800 font-mono mt-1">PV = nRT</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* POMODORO MODAL */}
+            {activeModal === 'pomodoro' && (
+              <div className="space-y-4 text-center">
+                <div>
+                  <h3 className="text-base font-bold text-slate-900">পোমোডোরো স্টাডি টাইমার</h3>
+                  <p className="text-xs text-slate-500">২৫ মিনিট গভীর মনোযোগ দিয়ে পড়ার অভ্যাস</p>
+                </div>
+                <div className="w-36 h-36 rounded-full bg-rose-50 border-4 border-rose-400 flex items-center justify-center mx-auto shadow-inner">
+                  <span className="text-3xl font-black font-mono text-rose-600">
+                    {formatPomoTime(pomoSeconds)}
+                  </span>
+                </div>
+                <div className="flex gap-2 justify-center">
+                  <button
+                    onClick={() => setPomoActive(!pomoActive)}
+                    className="px-5 py-2 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-bold text-xs flex items-center gap-1.5 shadow-md active:scale-95"
+                  >
+                    {pomoActive ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                    <span>{pomoActive ? 'থামুন' : 'শুরু করুন'}</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setPomoActive(false);
+                      setPomoSeconds(25 * 60);
+                    }}
+                    className="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center gap-1"
+                  >
+                    <RotateCcw className="w-4 h-4" />
+                    <span>রিসেট</span>
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* NOTEBOOK MODAL */}
+            {activeModal === 'notebook' && (
+              <div className="space-y-3">
+                <div className="text-center">
+                  <h3 className="text-base font-bold text-slate-900">স্টাডি নোটবুক</h3>
+                  <p className="text-xs text-slate-500">পড়ার গুরুত্বপূর্ণ টিপস লিখে রাখুন</p>
+                </div>
+                <div className="flex gap-1.5">
+                  <input
+                    type="text"
+                    value={newNote}
+                    onChange={e => setNewNote(e.target.value)}
+                    placeholder="নতুন নোট লিখুন..."
+                    className="flex-1 p-2 rounded-xl border border-slate-200 text-xs"
+                    onKeyDown={e => e.key === 'Enter' && handleAddNote()}
+                  />
+                  <button
+                    onClick={handleAddNote}
+                    className="px-3 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-bold"
+                  >
+                    <Plus className="w-4 h-4" />
+                  </button>
+                </div>
+                <div className="space-y-1.5 max-h-52 overflow-y-auto pr-1">
+                  {notes.map((n, i) => (
+                    <div key={i} className="p-2 rounded-xl bg-amber-50/70 border border-amber-200/60 flex items-start justify-between gap-2 text-xs">
+                      <span className="text-slate-800 flex-1 leading-snug">{n}</span>
+                      <button onClick={() => handleDeleteNote(i)} className="text-slate-400 hover:text-rose-600 p-0.5">
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* TO-DO LIST MODAL */}
+            {activeModal === 'todoList' && (
+              <div className="space-y-3">
+                <div className="text-center">
+                  <h3 className="text-base font-bold text-slate-900">টু-ডু লিস্ট</h3>
+                  <p className="text-xs text-slate-500">দৈনিক পড়া ও পরীক্ষার টাস্ক তালিকা</p>
+                </div>
+                <div className="flex gap-1.5">
+                  <input
+                    type="text"
+                    value={newTodo}
+                    onChange={e => setNewTodo(e.target.value)}
+                    placeholder="নতুন টাস্ক লিখুন..."
+                    className="flex-1 p-2 rounded-xl border border-slate-200 text-xs"
+                    onKeyDown={e => e.key === 'Enter' && handleAddTodo()}
+                  />
+                  <button
+                    onClick={handleAddTodo}
+                    className="px-3 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded-xl text-xs font-bold"
+                  >
+                    <Plus className="w-4 h-4" />
+                  </button>
+                </div>
+                <div className="space-y-1.5 max-h-52 overflow-y-auto pr-1">
+                  {todos.map(t => (
+                    <div
+                      key={t.id}
+                      onClick={() => handleToggleTodo(t.id)}
+                      className={`p-2 rounded-xl border flex items-center gap-2 text-xs cursor-pointer transition-all ${
+                        t.done ? 'bg-slate-50 border-slate-200 text-slate-400 line-through' : 'bg-white border-slate-200 text-slate-800'
+                      }`}
+                    >
+                      <div className={`w-4 h-4 rounded-md border flex items-center justify-center ${
+                        t.done ? 'bg-cyan-600 border-cyan-600 text-white' : 'border-slate-300'
+                      }`}>
+                        {t.done && <Check className="w-3 h-3 stroke-[3]" />}
+                      </div>
+                      <span className="flex-1">{t.text}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* CHECKLIST MODAL */}
+            {activeModal === 'checklist' && (
+              <div className="space-y-3">
+                <div className="text-center">
+                  <h3 className="text-base font-bold text-slate-900">পরীক্ষার পূর্বপ্রস্তুতি চেকলিস্ট</h3>
+                  <p className="text-xs text-slate-500">পরীক্ষার হলে যাওয়ার আগে মিলিয়ে নিন</p>
+                </div>
+                <div className="space-y-2">
+                  {checkItems.map(c => (
+                    <div
+                      key={c.id}
+                      onClick={() => {
+                        setCheckItems(items => items.map(it => it.id === c.id ? { ...it, checked: !it.checked } : it));
+                      }}
+                      className="p-2.5 rounded-xl border border-slate-200 flex items-center gap-2.5 text-xs cursor-pointer hover:bg-slate-50"
+                    >
+                      <div className={`w-4 h-4 rounded-md border flex items-center justify-center ${
+                        c.checked ? 'bg-lime-600 border-lime-600 text-white' : 'border-slate-300'
+                      }`}>
+                        {c.checked && <Check className="w-3 h-3 stroke-[3]" />}
+                      </div>
+                      <span className={`flex-1 font-semibold ${c.checked ? 'text-slate-800' : 'text-slate-600'}`}>{c.label}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* REMINDER MODAL */}
+            {activeModal === 'reminder' && (
+              <div className="space-y-3 text-center">
+                <div className="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-center mx-auto text-emerald-600">
+                  <Bell className="w-6 h-6" />
+                </div>
+                <h3 className="text-base font-bold text-slate-900">পরীক্ষা ও ক্লাস রিমাইন্ডার</h3>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  বোর্ড পরীক্ষা ও অধ্যায়ভিত্তিক এমসিকিউ রিভিশনের জন্য স্মার্টস্টাডি প্ল্যাটফর্মের নোটিফিকেশন স্বয়ংক্রিয়ভাবে সক্রিয় রয়েছে।
+                </p>
+                <div className="p-3 bg-emerald-50 rounded-2xl border border-emerald-200 text-xs text-emerald-800 font-bold">
+                  🔔 নোটিফিকেশন চালু আছে
+                </div>
+              </div>
+            )}
+
+            {/* ROUTINE MODAL */}
+            {activeModal === 'routine' && (
+              <div className="space-y-3">
+                <div className="text-center">
+                  <h3 className="text-base font-bold text-slate-900">সাপ্তাহিক স্টাডি রুটিন</h3>
+                  <p className="text-xs text-slate-500">বোর্ড প্রস্তুতি সময়সূচী</p>
+                </div>
+                <div className="space-y-1.5 text-xs">
+                  <div className="p-2 rounded-xl bg-indigo-50 border border-indigo-200 flex justify-between">
+                    <span className="font-bold text-indigo-900">শনিবার - সোমবার:</span>
+                    <span className="text-indigo-800">গণিত ও পদার্থবিজ্ঞান লেকচার</span>
+                  </div>
+                  <div className="p-2 rounded-xl bg-purple-50 border border-purple-200 flex justify-between">
+                    <span className="font-bold text-purple-900">মঙ্গলবার - বুধবার:</span>
+                    <span className="text-purple-800">আইসিটি ও ইংরেজি প্র্যাকটিস</span>
+                  </div>
+                  <div className="p-2 rounded-xl bg-amber-50 border border-amber-200 flex justify-between">
+                    <span className="font-bold text-amber-900">বৃহস্পতিবার - শুক্রবার:</span>
+                    <span className="text-amber-800">৩০টি বোর্ড এমসিকিউ টেস্ট</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};

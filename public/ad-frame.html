@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      background: transparent;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    #ad-wrapper {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      position: relative;
+    }
+    #fallback-banner {
+      display: none;
+      width: 100%;
+      height: 100%;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      color: #334155;
+      text-decoration: none;
+      box-sizing: border-box;
+      cursor: pointer;
+    }
+    .fb-title {
+      font-weight: 700;
+      font-size: 13px;
+      color: #0f172a;
+      line-height: 1.2;
+    }
+    .fb-sub {
+      font-size: 11px;
+      color: #64748b;
+      margin-top: 2px;
+    }
+    .fb-btn {
+      background: #b45309;
+      color: #ffffff;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+  <div id="ad-wrapper">
+    <script type="text/javascript">
+      var params = new URLSearchParams(window.location.search);
+      var key = params.get('key') || '5febadcb47e71b73b1202fd206a76c5c';
+      var isSquare = params.get('height') === '250' || params.get('width') === '300' || key === '911ee250303f0d466e6e2cab58b077e0';
+      var width = isSquare ? 300 : 468;
+      var height = isSquare ? 250 : 60;
+      var format = params.get('format') || 'iframe';
+      var scriptUrl = params.get('scriptUrl') || ('https://bauval.org/22/' + key);
+
+      window.atOptions = {
+        'key': key,
+        'format': format,
+        'height': height,
+        'width': width,
+        'params': {}
+      };
+
+      document.write('<script type="text/javascript" src="' + scriptUrl + '"><\\/script>');
+    </script>
+
+    <div id="fallback-banner">
+      <div>
+        <div class="fb-title">SmartStudy • অনলাইন লার্নিং প্ল্যাটফর্ম</div>
+        <div class="fb-sub">এইচএসসি ও এসএসসি ফ্রি ক্লাস এবং কুইজ প্রস্তুতি</div>
+      </div>
+      <div class="fb-btn">শুরু করুন</div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    // Gracefully show educational banner ONLY if ad network returns empty / fails after delay
+    setTimeout(function() {
+      try {
+        var wrapper = document.getElementById('ad-wrapper');
+        var hasAd = wrapper.querySelector('iframe') || wrapper.querySelector('img') || wrapper.querySelector('a');
+        if (!hasAd) {
+          var fb = document.getElementById('fallback-banner');
+          if (fb) fb.style.display = 'flex';
+        }
+      } catch(e) {}
+    }, 1800);
+  </script>
+</body>
+</html>
