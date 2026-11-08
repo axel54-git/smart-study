@@ -7,7 +7,7 @@ import { MCQSection } from './components/MCQSection';
 import { SmartStudyAIChat } from './components/SmartStudyAIChat';
 import { ScientificCalculator } from './components/ScientificCalculator';
 import { StudentToolsProfile } from './components/StudentToolsProfile';
-import { PWAInstallButton } from './components/PWAInstallButton';
+import { InstallPromptModal } from './components/InstallPromptModal';
 import { 
   Lock, 
   X, 
@@ -324,25 +324,18 @@ export default function App() {
                 </button>
               )}
               <img
-                src="/app_logo.png"
-                alt="SmartStudy App Logo"
-                className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl object-cover shadow-2xs shrink-0"
-              />
-              <img
                 src="/assets/aistudio/smartstudy_logo.png"
                 alt="SmartStudy"
-                className="h-8 sm:h-9 w-auto max-w-[135px] sm:max-w-[170px] object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.06)]"
+                className="h-8 sm:h-9 w-auto max-w-[150px] sm:max-w-[185px] object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.06)]"
               />
             </div>
 
-            {/* Right: Active Page Title Badge or Install PWA Button */}
+            {/* Right: Active Page Title Badge (when inside subpages) */}
             <div className="flex items-center gap-2 shrink-0">
-              {navState.title ? (
+              {navState.title && (
                 <div className="px-3 py-1 rounded-full bg-white/95 text-slate-800 text-xs font-bold border border-slate-200/80 shadow-2xs max-w-[170px] truncate text-right">
                   <span className="truncate">{navState.title}</span>
                 </div>
-              ) : (
-                <PWAInstallButton variant="header" />
               )}
             </div>
           </header>
@@ -495,6 +488,9 @@ export default function App() {
           </div>
         </div>
       )}
+
+      {/* 30-Second Install Notification Modal */}
+      <InstallPromptModal />
 
     </div>
   );
