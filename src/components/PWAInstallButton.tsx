@@ -76,22 +76,10 @@ export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({
             <button
               onClick={handleInstallClick}
               disabled={installing}
-              className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 active:scale-95 text-white text-xs font-bold rounded-xl shadow-2xs flex items-center gap-1 cursor-pointer transition-all disabled:opacity-75"
+              className="px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 active:scale-95 text-white text-xs font-bold rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer transition-all disabled:opacity-75"
             >
-              <Download className="w-3.5 h-3.5" />
-              <span>{installing ? 'হচ্ছে...' : 'ইনস্টল'}</span>
-            </button>
-
-            {/* ইতিমধ্যে ইনস্টল করা থাকলে নোটিশটি বন্ধ করার অপশন */}
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                markAsInstalled();
-              }}
-              title="ইতিমধ্যে ইনস্টল করা থাকলে এটি বন্ধ করুন"
-              className="w-7 h-7 rounded-full bg-slate-200/60 hover:bg-slate-300 text-slate-500 hover:text-slate-700 flex items-center justify-center transition-all cursor-pointer"
-            >
-              <X className="w-3.5 h-3.5" />
+              <Download className="w-3.5 h-3.5 stroke-[2.5]" />
+              <span>{installing ? 'হচ্ছে...' : 'ইনস্টল করুন'}</span>
             </button>
           </div>
         </div>

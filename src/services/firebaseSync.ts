@@ -117,10 +117,10 @@ class FirebaseSyncManager {
         this.app = initializeApp(config, appName);
       }
 
-      // Initialize Realtime DB if URL is provided
+      // Initialize Realtime DB if URL is provided in config options
       if (config.databaseURL) {
         try {
-          this.rtdb = getDatabase(this.app, config.databaseURL);
+          this.rtdb = getDatabase(this.app);
         } catch (err) {
           console.warn('Realtime Database init warning:', err);
         }
@@ -152,6 +152,19 @@ class FirebaseSyncManager {
 
   public getConfig(): FirebaseConfigType {
     return { ...this.currentConfig };
+  }
+
+  public getRTDB(): Database | null {
+    if (this.rtdb) return this.rtdb;
+    if (this.app) {
+      try {
+        this.rtdb = getDatabase(this.app);
+        return this.rtdb;
+      } catch (err) {
+        console.warn('Realtime Database getter warning:', err);
+      }
+    }
+    return null;
   }
 
   public getStatus() {

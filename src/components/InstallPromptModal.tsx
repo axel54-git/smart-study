@@ -1,47 +1,74 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { usePWAInstall } from '../hooks/usePWAInstall';
 import { Download, X, Smartphone } from 'lucide-react';
 
 export const InstallPromptModal: React.FC = () => {
   const { isInstallable, isInstalled, isIOS, install, markAsInstalled } = usePWAInstall();
   const [isOpen, setIsOpen] = useState(false);
-  const [showIOSGuide, setShowIOSGuide] = useState(false);
+  const [showGuide, setShowGuide] = useState(false);
   const [isInstalling, setIsInstalling] = useState(false);
 
+  // Timer reference to manage exact 30-second intervals
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Schedule next 30-second prompt
+  const scheduleNextPrompt = useCallback(() => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+
+    // Only schedule if the app is NOT installed
+    if (!isInstalled) {
+      timerRef.current = setTimeout(() => {
+        setIsOpen(true);
+      }, 30000); // Exactly 30 seconds
+    }
+  }, [isInstalled]);
+
+  // Initial 30-second trigger on app entry
   useEffect(() => {
-    // If the app is already installed on the mobile device, NEVER show this notice
     if (isInstalled) {
       setIsOpen(false);
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
+      }
       return;
     }
 
-    // Initial trigger after 30 seconds
-    const initialTimer = setTimeout(() => {
-      setIsOpen(true);
+    // Start initial 30-second timer
+    scheduleNextPrompt();
+
+    // Recurring safety interval (every 30 seconds) ensuring the prompt reappears if closed
+    const recurringInterval = setInterval(() => {
+      setIsOpen((currentlyOpen) => {
+        // If not installed and not already open, show notice
+        if (!isInstalled && !currentlyOpen) {
+          return true;
+        }
+        return currentlyOpen;
+      });
     }, 30000);
 
-    // Repeat prompt every 1 minute (60 seconds) if not installed
-    const intervalTimer = setInterval(() => {
-      // Re-check installed status before showing
-      const saved = localStorage.getItem('smartstudy_app_is_installed') === 'true';
-      if (!saved) {
-        setIsOpen(true);
-      }
-    }, 60000); // 1 minute interval
-
     return () => {
-      clearTimeout(initialTimer);
-      clearInterval(intervalTimer);
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+      clearInterval(recurringInterval);
     };
-  }, [isInstalled]);
+  }, [isInstalled, scheduleNextPrompt]);
 
+  // Handle user closing the modal: closes and schedules next prompt in 30 seconds
   const handleClose = () => {
     setIsOpen(false);
-    setShowIOSGuide(false);
+    setShowGuide(false);
+    // Restart 30-second timer so it pops up again after 30 seconds
+    scheduleNextPrompt();
   };
 
   const handleInstallClick = async () => {
-    // 1. If native install prompt is ready, trigger immediately
+    // 1. If native browser PWA install prompt is ready, trigger directly
     if (isInstallable) {
       setIsInstalling(true);
       try {
@@ -58,17 +85,18 @@ export const InstallPromptModal: React.FC = () => {
       }
     }
 
-    // 2. If inside iframe (like AI Studio preview), opening directly in browser enables Chrome native install prompt
+    // 2. If running inside an iframe (like AI Studio preview), opening top window enables native Chrome install
     try {
       if (typeof window !== 'undefined' && window.self !== window.top) {
         window.open(window.location.href, '_blank');
       }
     } catch {}
 
-    setShowIOSGuide(true);
+    // Show step-by-step guide
+    setShowGuide(true);
   };
 
-  // If installed, never display anything
+  // If the app is already installed on the phone, NEVER show this notice
   if (!isOpen || isInstalled) {
     return null;
   }
@@ -77,16 +105,16 @@ export const InstallPromptModal: React.FC = () => {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fade-in">
       <div className="w-full max-w-xs bg-white rounded-3xl p-6 shadow-2xl border border-slate-100 relative text-center">
         
-        {/* Top-right close button (ক্রস বোতাম) */}
+        {/* Top-right cross close button */}
         <button
           onClick={handleClose}
           className="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition-colors cursor-pointer"
-          title="Close"
+          title="Close (Reappears in 30 seconds if not installed)"
         >
           <X className="w-4 h-4" />
         </button>
 
-        {/* App Logo without star */}
+        {/* App Logo */}
         <div className="mx-auto w-16 h-16 mb-3 mt-1">
           <img
             src="/app_logo.png"
@@ -106,7 +134,7 @@ export const InstallPromptModal: React.FC = () => {
           <span>Official Mobile App</span>
         </div>
 
-        {/* Action Buttons in English - Compact Sized Button as requested */}
+        {/* Action Buttons in English - Compact Size */}
         <div className="mt-5 flex flex-col items-center gap-2">
           <button
             onClick={handleInstallClick}
@@ -117,44 +145,35 @@ export const InstallPromptModal: React.FC = () => {
             <span>{isInstalling ? 'Installing...' : 'Install App'}</span>
           </button>
 
-          <div className="flex items-center justify-center gap-3 pt-1 text-[11px] text-slate-400">
-            <button
-              onClick={() => {
-                markAsInstalled();
-                setIsOpen(false);
-              }}
-              className="hover:text-amber-600 transition-colors cursor-pointer"
-            >
-              Already Installed
-            </button>
-            <span>•</span>
-            <button
-              onClick={handleClose}
-              className="hover:text-slate-600 transition-colors cursor-pointer"
-            >
-              Maybe Later
-            </button>
-          </div>
+          <button
+            onClick={handleClose}
+            className="text-[11px] text-slate-400 hover:text-slate-600 transition-colors cursor-pointer pt-1"
+          >
+            Maybe Later
+          </button>
         </div>
 
-        {/* iOS / Manual Guide (in English) */}
-        {showIOSGuide && (
-          <div className="mt-3.5 text-left bg-amber-50 border border-amber-200 rounded-2xl p-3 text-xs text-amber-950 space-y-2">
-            <p className="font-bold">How to install:</p>
+        {/* Step-by-step Guide */}
+        {showGuide && (
+          <div className="mt-3.5 text-left bg-amber-50 border border-amber-200 rounded-2xl p-3 text-xs text-amber-950 space-y-2 animate-fade-in">
+            <p className="font-bold text-slate-900">How to install:</p>
             {isIOS ? (
-              <p className="text-[11px]">Tap the <strong>Share</strong> icon in Safari and select <strong>'Add to Home Screen'</strong>.</p>
+              <p className="text-[11px] text-slate-700">
+                1. Tap the <strong>Share</strong> button at bottom of Safari.<br />
+                2. Select <strong>'Add to Home Screen'</strong>.<br />
+                3. Tap <strong>'Add'</strong> at top right.
+              </p>
             ) : (
-              <p className="text-[11px]">Tap the <strong>three dots (⋮)</strong> menu in Chrome and select <strong>'Install app'</strong> or <strong>'Add to Home screen'</strong>.</p>
+              <p className="text-[11px] text-slate-700">
+                1. Tap the <strong>three dots (⋮)</strong> menu in Chrome.<br />
+                2. Tap <strong>'Install app'</strong> or <strong>'Add to Home screen'</strong>.
+              </p>
             )}
             <button
-              onClick={() => {
-                markAsInstalled();
-                setShowIOSGuide(false);
-                setIsOpen(false);
-              }}
-              className="w-full py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-bold text-xs text-center cursor-pointer shadow-xs"
+              onClick={handleClose}
+              className="w-full py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl font-bold text-[11px] text-center cursor-pointer transition-colors"
             >
-              Already Installed
+              OK, Got it
             </button>
           </div>
         )}

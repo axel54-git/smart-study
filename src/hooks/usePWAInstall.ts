@@ -6,34 +6,41 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed'; platform: string }>;
 }
 
-const INSTALLED_STORAGE_KEY = 'smartstudy_app_is_installed';
+// Versioned key to prevent false positives from previous test clicks
+const VERIFIED_INSTALLED_KEY = 'smartstudy_pwa_verified_installed_v2';
 
 export function usePWAInstall() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
-  
+
+  // Checks if the web app is running in actual standalone mode on phone or verified as installed
   const checkIsStandaloneOrInstalled = useCallback((): boolean => {
     try {
       if (typeof window === 'undefined') return false;
-      
-      // 1. Persistent storage flag
-      if (localStorage.getItem(INSTALLED_STORAGE_KEY) === 'true') {
-        return true;
-      }
 
-      // 2. Window display-mode checks (PWA standalone, fullscreen, minimal-ui)
+      // 1. Check if user is currently inside the standalone installed PWA
       const isStandalone =
         window.matchMedia('(display-mode: standalone)').matches ||
         window.matchMedia('(display-mode: fullscreen)').matches ||
         window.matchMedia('(display-mode: minimal-ui)').matches;
-      if (isStandalone) return true;
-
-      // 3. iOS standalone mode
-      if ((window.navigator as unknown as { standalone?: boolean }).standalone === true) {
+      if (isStandalone) {
+        try { localStorage.setItem(VERIFIED_INSTALLED_KEY, 'true'); } catch {}
         return true;
       }
 
-      // 4. Android WebAPK / TWA launcher referrer
+      // 2. iOS standalone mode (launched from home screen icon)
+      if ((window.navigator as unknown as { standalone?: boolean }).standalone === true) {
+        try { localStorage.setItem(VERIFIED_INSTALLED_KEY, 'true'); } catch {}
+        return true;
+      }
+
+      // 3. Android WebAPK / TWA launcher
       if (typeof document !== 'undefined' && document.referrer && document.referrer.startsWith('android-app://')) {
+        try { localStorage.setItem(VERIFIED_INSTALLED_KEY, 'true'); } catch {}
+        return true;
+      }
+
+      // 4. Verified installation record (only saved upon real install completion)
+      if (localStorage.getItem(VERIFIED_INSTALLED_KEY) === 'true') {
         return true;
       }
 
@@ -50,7 +57,7 @@ export function usePWAInstall() {
     setIsInstalled(true);
     setDeferredPrompt(null);
     try {
-      localStorage.setItem(INSTALLED_STORAGE_KEY, 'true');
+      localStorage.setItem(VERIFIED_INSTALLED_KEY, 'true');
       window.dispatchEvent(new Event('smartstudy-app-installed'));
       appAnalytics.recordAppInstall();
     } catch {}

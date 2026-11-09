@@ -268,7 +268,7 @@ export const SmartStudyAIChat: React.FC<SmartStudyAIChatProps> = ({
                 <span className="w-2 h-2 rounded-full bg-amber-500 animate-bounce" style={{ animationDelay: '150ms' }} />
                 <span className="w-2 h-2 rounded-full bg-amber-500 animate-bounce" style={{ animationDelay: '300ms' }} />
               </div>
-              <span className="text-xs text-slate-500 font-medium ml-1">উত্তর তৈরি হচ্ছে...</span>
+              <span className="text-xs text-slate-500 font-semibold tracking-wide ml-1">Typing...</span>
             </div>
           </div>
         )}

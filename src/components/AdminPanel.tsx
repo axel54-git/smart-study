@@ -1395,117 +1395,117 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
         </div>
       )}
 
-      {/* Top Header - Compact & Shortcut Oriented */}
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 px-3 py-1.5 shadow-xs">
-        <div className="max-w-4xl mx-auto space-y-1.5">
+      {/* Top Header - Spacious & Easy-to-Tap Navigation */}
+      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 px-3.5 py-2.5 sm:py-3 shadow-xs">
+        <div className="max-w-5xl mx-auto space-y-2 sm:space-y-2.5">
           {/* Top Row: Quick actions & Brand */}
           <div className="flex items-center justify-between gap-2">
             <button
               onClick={onExitAdmin}
-              className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[11px] flex items-center gap-1 transition-colors shrink-0"
+              className="px-3.5 py-1.5 sm:py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs sm:text-sm flex items-center gap-1.5 transition-all shrink-0 active:scale-95 cursor-pointer shadow-2xs"
               title="ইউজার ভিউতে ফিরে যান"
             >
-              <ArrowLeft className="w-3.5 h-3.5" />
+              <ArrowLeft className="w-4 h-4" />
               <span>ইউজার ভিউ</span>
             </button>
 
-            <div className="flex items-center gap-1.5 text-xs font-bold text-slate-900 truncate">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+            <div className="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-slate-900 truncate">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
               <span className="truncate">
                 এডমিন: <span className="text-amber-600">
-                  {activeSection === 'home' ? 'হোম কন্টেন্ট' : activeSection === 'courses' ? 'কোর্স কন্টেন্ট' : activeSection === 'mcq' ? 'এমসিকিউ কন্টেন্ট' : activeSection === 'ads' ? 'বিজ্ঞাপন ব্যবস্থাপনা' : activeSection === 'analytics' ? 'অ্যাপ ডাউনলোড ও ডিভাইস' : 'ফায়ারবেস ক্লাউড'}
+                  {activeSection === 'home' ? '১. হোম কন্টেন্ট' : activeSection === 'courses' ? '২. কোর্স কন্টেন্ট' : activeSection === 'mcq' ? '৩. এমসিকিউ কন্টেন্ট' : activeSection === 'ads' ? '৪. বিজ্ঞাপন ব্যবস্থাপনা' : activeSection === 'analytics' ? '৫. অ্যাপ ডাউনলোড ও ডিভাইস' : '৬. ফায়ারবেস ক্লাউড'}
                 </span>
               </span>
             </div>
 
             <button
               onClick={handleSaveCurrent}
-              className="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] rounded-lg flex items-center gap-1 shadow-xs active:scale-95 transition-all shrink-0 cursor-pointer"
+              className="px-4 py-1.5 sm:py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm rounded-xl flex items-center gap-1.5 shadow-sm active:scale-95 transition-all shrink-0 cursor-pointer"
               title="পরিবর্তন সেভ করুন"
             >
-              <Save className="w-3.5 h-3.5" />
+              <Save className="w-4 h-4" />
               <span>সেভ</span>
             </button>
           </div>
 
-          {/* SECTION SWITCHER: 6 SEPARATE TABS INCLUDING APP ANALYTICS */}
-          <div className="grid grid-cols-6 gap-1 bg-slate-100 p-0.5 rounded-xl text-xs font-bold">
+          {/* SECTION SWITCHER: 6 SEPARATE TABS WITH GENEROUS BUTTON SIZES */}
+          <div className="grid grid-cols-3 sm:grid-cols-6 gap-1.5 sm:gap-2 bg-slate-100 p-1.5 rounded-2xl text-xs sm:text-sm font-bold shadow-2xs">
             <button
               onClick={() => handleSwitchSection('home')}
-              className={`py-1 px-1 rounded-lg flex items-center justify-center gap-1 transition-all ${
+              className={`py-2 sm:py-2.5 px-2 rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer font-bold ${
                 activeSection === 'home'
-                  ? 'bg-amber-500 text-white shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+                  ? 'bg-amber-500 text-white shadow-sm'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/70'
               }`}
             >
-              <Home className="w-3 h-3" />
+              <Home className="w-4 h-4 shrink-0" />
               <span className="truncate">১. হোম</span>
             </button>
 
             <button
               onClick={() => handleSwitchSection('courses')}
-              className={`py-1 px-1 rounded-lg flex items-center justify-center gap-1 transition-all ${
+              className={`py-2 sm:py-2.5 px-2 rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer font-bold ${
                 activeSection === 'courses'
-                  ? 'bg-emerald-600 text-white shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+                  ? 'bg-emerald-600 text-white shadow-sm'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/70'
               }`}
             >
-              <BookOpen className="w-3 h-3" />
+              <BookOpen className="w-4 h-4 shrink-0" />
               <span className="truncate">২. কোর্স</span>
             </button>
 
             <button
               onClick={() => handleSwitchSection('mcq')}
-              className={`py-1 px-1 rounded-lg flex items-center justify-center gap-1 transition-all ${
+              className={`py-2 sm:py-2.5 px-2 rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer font-bold ${
                 activeSection === 'mcq'
-                  ? 'bg-purple-600 text-white shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+                  ? 'bg-purple-600 text-white shadow-sm'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/70'
               }`}
             >
-              <CheckSquare className="w-3 h-3" />
+              <CheckSquare className="w-4 h-4 shrink-0" />
               <span className="truncate">৩. এমসিকিউ</span>
             </button>
 
             <button
               onClick={() => handleSwitchSection('ads')}
-              className={`py-1 px-1 rounded-lg flex items-center justify-center gap-1 transition-all ${
+              className={`py-2 sm:py-2.5 px-2 rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer font-bold ${
                 activeSection === 'ads'
-                  ? 'bg-gradient-to-r from-rose-500 to-amber-500 text-white shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+                  ? 'bg-gradient-to-r from-rose-500 to-amber-500 text-white shadow-sm'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/70'
               }`}
             >
-              <Megaphone className="w-3 h-3" />
+              <Megaphone className="w-4 h-4 shrink-0" />
               <span className="truncate">৪. অ্যাডস</span>
             </button>
 
             <button
               onClick={() => handleSwitchSection('analytics')}
-              className={`py-1 px-1 rounded-lg flex items-center justify-center gap-1 transition-all ${
+              className={`py-2 sm:py-2.5 px-2 rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer font-bold ${
                 activeSection === 'analytics'
-                  ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+                  ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-sm'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/70'
               }`}
             >
-              <Smartphone className="w-3 h-3" />
+              <Smartphone className="w-4 h-4 shrink-0" />
               <span className="truncate">৫. অ্যাপস</span>
             </button>
 
             <button
               onClick={() => handleSwitchSection('firebase')}
-              className={`py-1 px-1 rounded-lg flex items-center justify-center gap-1 transition-all ${
+              className={`py-2 sm:py-2.5 px-2 rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer font-bold ${
                 activeSection === 'firebase'
-                  ? 'bg-gradient-to-r from-amber-600 to-orange-600 text-white shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+                  ? 'bg-gradient-to-r from-amber-600 to-orange-600 text-white shadow-sm'
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/70'
               }`}
             >
-              <Cloud className="w-3 h-3" />
+              <Cloud className="w-4 h-4 shrink-0" />
               <span className="truncate">৬. ক্লাউড</span>
             </button>
           </div>
 
           {/* 4-Step Wizard Stepper - Visible only for Home, Courses, MCQ */}
           {activeSection !== 'firebase' && activeSection !== 'ads' && activeSection !== 'analytics' && (
-            <div className="grid grid-cols-4 gap-1 text-[11px] font-bold">
+            <div className="grid grid-cols-4 gap-1.5 sm:gap-2 text-xs sm:text-sm font-bold">
               {[
                 { step: 1, label: '১. শ্রেণি' },
                 { step: 2, label: '২. বিষয়' },
@@ -1518,10 +1518,10 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                     handleSaveCurrent();
                     setCurrentStep(s.step as 1 | 2 | 3 | 4);
                   }}
-                  className={`py-1 px-1 rounded-lg text-center border transition-all ${
+                  className={`py-2 px-2 rounded-xl text-center border-2 transition-all font-bold cursor-pointer shadow-2xs ${
                     currentStep === s.step
-                      ? 'bg-amber-50 border-amber-400 text-amber-900 shadow-2xs'
-                      : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'
+                      ? 'bg-amber-50 border-amber-500 text-amber-900 shadow-xs font-black'
+                      : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
                   }`}
                 >
                   <span>{s.label}</span>
@@ -1532,8 +1532,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
         </div>
       </header>
 
-      {/* Main Content Form - Compact Padding */}
-      <main className="max-w-4xl w-full mx-auto p-2 sm:p-3 flex-1">
+      {/* Main Content Form - Spacious Padding */}
+      <main className="max-w-5xl w-full mx-auto p-3 sm:p-4 flex-1">
         
         {/* APP ANALYTICS TAB (নতুন মেনু: কয়জন ডাউনলোড করেছে ও সক্রিয় ফোনের রিয়েলটাইম তথ্য) */}
         {activeSection === 'analytics' && (
@@ -1561,13 +1561,13 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
         {activeSection !== 'firebase' && activeSection !== 'ads' && activeSection !== 'analytics' && currentStep === 1 && (
           <div className="space-y-2.5 animate-fade-in">
             {/* Quick Add Bar & Presets for Class */}
-            <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/80 rounded-xl p-2.5 shadow-2xs space-y-2">
+            <div className="bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/80 rounded-2xl p-3 sm:p-4 shadow-xs space-y-2.5">
               <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-1.5 text-xs font-bold text-amber-900">
-                  <Zap className="w-4 h-4 text-amber-600" />
+                <div className="flex items-center gap-2 text-sm sm:text-base font-bold text-amber-900">
+                  <Zap className="w-4.5 h-4.5 text-amber-600" />
                   <span>দ্রুত নতুন শ্রেণি যোগ করুন:</span>
                 </div>
-                <span className="text-[10px] text-amber-700 font-semibold bg-amber-100/80 px-2 py-0.5 rounded-full">
+                <span className="text-xs text-amber-800 font-bold bg-amber-100 px-2.5 py-1 rounded-full">
                   মোট: {currentClasses.length}টি শ্রেণি
                 </span>
               </div>
@@ -1578,83 +1578,83 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                   e.preventDefault();
                   handleAddClassQuick(quickClassTitle, quickClassSub);
                 }}
-                className="flex items-center gap-1.5 flex-wrap sm:flex-nowrap"
+                className="flex items-center gap-2 flex-wrap sm:flex-nowrap"
               >
                 <input
                   type="text"
                   value={quickClassTitle}
                   onChange={e => setQuickClassTitle(e.target.value)}
                   placeholder="শ্রেণির নাম (যেমন: ৯ম শ্রেণি)..."
-                  className="flex-1 min-w-[140px] text-xs font-bold py-1.5 px-2.5 rounded-lg bg-white border border-amber-300 focus:outline-none focus:ring-1 focus:ring-amber-500 shadow-2xs"
+                  className="flex-1 min-w-[150px] text-sm font-bold py-2 px-3 rounded-xl bg-white border border-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-2xs"
                 />
                 <input
                   type="text"
                   value={quickClassSub}
                   onChange={e => setQuickClassSub(e.target.value)}
                   placeholder="সাবটাইটেল (ঐচ্ছিক)..."
-                  className="flex-1 min-w-[130px] text-xs py-1.5 px-2.5 rounded-lg bg-white border border-amber-300 focus:outline-none focus:ring-1 focus:ring-amber-500 shadow-2xs"
+                  className="flex-1 min-w-[140px] text-sm py-2 px-3 rounded-xl bg-white border border-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-2xs"
                 />
                 <button
                   type="submit"
                   disabled={!quickClassTitle.trim()}
-                  className="px-3 py-1.5 bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white font-bold text-xs rounded-lg flex items-center gap-1 shadow-2xs active:scale-95 shrink-0 transition-all"
+                  className="px-4 py-2 bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white font-bold text-sm rounded-xl flex items-center gap-1.5 shadow-sm active:scale-95 shrink-0 transition-all cursor-pointer"
                 >
-                  <Plus className="w-3.5 h-3.5" />
+                  <Plus className="w-4 h-4" />
                   <span>+ যোগ করুন</span>
                 </button>
               </form>
             </div>
 
             {/* List of Classes */}
-            <div className="space-y-2">
+            <div className="space-y-2.5">
               {currentClasses.map((cls, idx) => {
                 const subCount = currentSubjects.filter(s => s.classId === cls.id).length;
 
                 return (
-                  <div key={cls.id} className="bg-white rounded-xl p-2.5 border border-slate-200 shadow-2xs space-y-2 hover:border-slate-300 transition-colors">
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="w-6 h-6 rounded-md bg-amber-100 text-amber-800 flex items-center justify-center font-bold text-[11px] shrink-0">
+                  <div key={cls.id} className="bg-white rounded-2xl p-3 sm:p-3.5 border border-slate-200 shadow-2xs space-y-2.5 hover:border-slate-300 transition-colors">
+                    <div className="flex items-center justify-between gap-2.5">
+                      <div className="w-7 h-7 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center font-bold text-xs shrink-0">
                         {idx + 1}
                       </div>
-                      <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                      <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-2">
                         <input
                           type="text"
                           value={cls.title}
                           onChange={e => handleUpdateClass(cls.id, 'title', e.target.value)}
-                          className="text-xs font-bold py-1 px-2 rounded-md bg-slate-50 border border-slate-200 focus:bg-white focus:outline-none"
+                          className="text-sm font-bold py-1.5 px-3 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400"
                           placeholder="শ্রেণির নাম"
                         />
                         <input
                           type="text"
                           value={cls.subtitle}
                           onChange={e => handleUpdateClass(cls.id, 'subtitle', e.target.value)}
-                          className="text-xs py-1 px-2 rounded-md bg-slate-50 border border-slate-200 focus:bg-white focus:outline-none"
+                          className="text-sm py-1.5 px-3 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-400"
                           placeholder="সাবটাইটেল"
                         />
                       </div>
                       <button
                         onClick={() => handleDeleteClass(cls.id)}
-                        className="text-slate-400 hover:text-rose-600 p-1 transition-colors"
+                        className="text-slate-400 hover:text-rose-600 p-1.5 rounded-lg hover:bg-rose-50 transition-colors cursor-pointer"
                         title="মুছে ফেলুন"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="w-4.5 h-4.5" />
                       </button>
                     </div>
 
                     {/* Direct jump to Step 2 for this class */}
-                    <div className="flex items-center justify-between border-t border-slate-100 pt-1.5 pl-8 pr-1">
-                      <span className="text-[11px] text-slate-500 font-medium">
-                        বিষয় সংখ্যা: <strong className="text-slate-700">{subCount}টি</strong>
+                    <div className="flex items-center justify-between border-t border-slate-100 pt-2 pl-9 pr-1">
+                      <span className="text-xs sm:text-sm text-slate-500 font-medium">
+                        বিষয় সংখ্যা: <strong className="text-slate-800">{subCount}টি</strong>
                       </span>
                       <button
                         onClick={() => {
                           handleSelectClass(cls.id);
                           setCurrentStep(2);
                         }}
-                        className="px-2.5 py-1 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 rounded-lg text-[11px] font-bold flex items-center gap-1 shadow-2xs active:scale-95 transition-all"
+                        className="px-3.5 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1.5 shadow-2xs active:scale-95 transition-all cursor-pointer"
                       >
                         <span>২. বিষয়সমূহ যোগ/এডিট করুন ({subCount})</span>
-                        <ArrowRight className="w-3 h-3" />
+                        <ArrowRight className="w-4 h-4" />
                       </button>
                     </div>
                   </div>
@@ -1666,15 +1666,15 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
 
         {/* STEP 2: SUBJECTS */}
         {activeSection !== 'firebase' && activeSection !== 'ads' && currentStep === 2 && (
-          <div className="space-y-2.5 animate-fade-in">
+          <div className="space-y-3 animate-fade-in">
             {/* Header with Class Selector */}
-            <div className="flex flex-wrap items-center justify-between gap-2 bg-white px-3 py-1.5 rounded-xl border border-slate-200 shadow-2xs">
-              <div className="flex items-center gap-1.5">
-                <span className="text-xs font-bold text-slate-700">নির্বাচিত শ্রেণি:</span>
+            <div className="flex flex-wrap items-center justify-between gap-2.5 bg-white px-3.5 py-2.5 rounded-2xl border border-slate-200 shadow-2xs">
+              <div className="flex items-center gap-2">
+                <span className="text-xs sm:text-sm font-bold text-slate-700">নির্বাচিত শ্রেণি:</span>
                 <select
                   value={currentClass?.id || selectedClassId}
                   onChange={e => handleSelectClass(e.target.value)}
-                  className="text-xs py-1 px-2 rounded-lg border border-slate-300 bg-white font-bold max-w-[170px] truncate"
+                  className="text-xs sm:text-sm py-1.5 px-3 rounded-xl border border-slate-300 bg-white font-bold max-w-[200px] truncate"
                 >
                   {currentClasses.map(c => (
                     <option key={c.id} value={c.id}>{c.title}</option>
@@ -1682,16 +1682,16 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                 </select>
               </div>
 
-              <span className="text-[11px] text-slate-500 font-semibold">
-                মোট বিষয়: <strong className="text-blue-700">{currentClassSubjects.length}টি</strong>
+              <span className="text-xs sm:text-sm text-slate-600 font-semibold">
+                মোট বিষয়: <strong className="text-blue-700 font-bold">{currentClassSubjects.length}টি</strong>
               </span>
             </div>
 
             {/* Quick Add Bar & Subject Presets */}
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/80 rounded-xl p-2.5 shadow-2xs space-y-2">
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/80 rounded-2xl p-3 sm:p-4 shadow-xs space-y-2.5">
               <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-1.5 text-xs font-bold text-blue-900">
-                  <Zap className="w-4 h-4 text-blue-600" />
+                <div className="flex items-center gap-2 text-sm sm:text-base font-bold text-blue-900">
+                  <Zap className="w-4.5 h-4.5 text-blue-600" />
                   <span>"{currentClass?.title}"-এ দ্রুত বিষয় যোগ করুন:</span>
                 </div>
               </div>
@@ -1702,90 +1702,90 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                   e.preventDefault();
                   handleAddSubjectQuick(quickSubName, quickSubSub);
                 }}
-                className="flex items-center gap-1.5 flex-wrap sm:flex-nowrap"
+                className="flex items-center gap-2 flex-wrap sm:flex-nowrap"
               >
                 <input
                   type="text"
                   value={quickSubName}
                   onChange={e => setQuickSubName(e.target.value)}
                   placeholder="বিষয়ের নাম (যেমন: পদার্থবিজ্ঞান ১ম পত্র)..."
-                  className="flex-1 min-w-[150px] text-xs font-bold py-1.5 px-2.5 rounded-lg bg-white border border-blue-300 focus:outline-none focus:ring-1 focus:ring-blue-500 shadow-2xs"
+                  className="flex-1 min-w-[160px] text-sm font-bold py-2 px-3 rounded-xl bg-white border border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-2xs"
                 />
                 <input
                   type="text"
                   value={quickSubSub}
                   onChange={e => setQuickSubSub(e.target.value)}
                   placeholder="সাবটাইটেল (ঐচ্ছিক)..."
-                  className="flex-1 min-w-[130px] text-xs py-1.5 px-2.5 rounded-lg bg-white border border-blue-300 focus:outline-none focus:ring-1 focus:ring-blue-500 shadow-2xs"
+                  className="flex-1 min-w-[140px] text-sm py-2 px-3 rounded-xl bg-white border border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-500 shadow-2xs"
                 />
                 <button
                   type="submit"
                   disabled={!quickSubName.trim()}
-                  className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-bold text-xs rounded-lg flex items-center gap-1 shadow-2xs active:scale-95 shrink-0 transition-all"
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-bold text-sm rounded-xl flex items-center gap-1.5 shadow-sm active:scale-95 shrink-0 transition-all cursor-pointer"
                 >
-                  <Plus className="w-3.5 h-3.5" />
+                  <Plus className="w-4 h-4" />
                   <span>+ বিষয় যোগ</span>
                 </button>
               </form>
             </div>
 
             {/* List of Subjects */}
-            <div className="space-y-2">
+            <div className="space-y-2.5">
               {currentClassSubjects.map((sub, idx) => {
                 const subChaptersCount = (activeSection === 'mcq' ? mcqCh : currentVideoChapters).filter(ch => ch.subjectId === sub.id).length;
 
                 return (
-                  <div key={sub.id} className="bg-white rounded-xl p-2.5 border border-slate-200 shadow-2xs space-y-2 hover:border-slate-300 transition-colors">
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="w-6 h-6 rounded-md bg-blue-100 text-blue-800 flex items-center justify-center font-bold text-[11px] shrink-0">
+                  <div key={sub.id} className="bg-white rounded-2xl p-3 sm:p-3.5 border border-slate-200 shadow-2xs space-y-2.5 hover:border-slate-300 transition-colors">
+                    <div className="flex items-center justify-between gap-2.5">
+                      <div className="w-7 h-7 rounded-lg bg-blue-100 text-blue-800 flex items-center justify-center font-bold text-xs shrink-0">
                         {idx + 1}
                       </div>
-                      <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                      <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-2">
                         <input
                           type="text"
                           value={sub.name}
                           onChange={e => handleUpdateSubject(sub.id, 'name', e.target.value)}
-                          className="text-xs font-bold py-1 px-2 rounded-md bg-slate-50 border border-slate-200 focus:bg-white focus:outline-none"
+                          className="text-sm font-bold py-1.5 px-3 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
                           placeholder="বিষয়ের নাম"
                         />
                         <input
                           type="text"
                           value={sub.subtitle}
                           onChange={e => handleUpdateSubject(sub.id, 'subtitle', e.target.value)}
-                          className="text-xs py-1 px-2 rounded-md bg-slate-50 border border-slate-200 focus:bg-white focus:outline-none"
+                          className="text-sm py-1.5 px-3 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-400"
                           placeholder="সাবটাইটেল"
                         />
                       </div>
                       <button
                         onClick={() => handleDeleteSubject(sub.id)}
-                        className="text-slate-400 hover:text-rose-600 p-1"
+                        className="text-slate-400 hover:text-rose-600 p-1.5 rounded-lg hover:bg-rose-50 transition-colors cursor-pointer"
                         title="মুছে ফেলুন"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 className="w-4.5 h-4.5" />
                       </button>
                     </div>
 
                     {/* Direct jump to this subject's chapters */}
-                    <div className="flex items-center justify-between border-t border-slate-100 pt-1.5 pl-8 pr-1">
-                      <span className="text-[11px] text-slate-500 font-medium">
-                        অধ্যায় সংখ্যা: <strong className="text-slate-700">{subChaptersCount}টি</strong>
+                    <div className="flex items-center justify-between border-t border-slate-100 pt-2 pl-9 pr-1">
+                      <span className="text-xs sm:text-sm text-slate-500 font-medium">
+                        অধ্যায় সংখ্যা: <strong className="text-slate-800">{subChaptersCount}টি</strong>
                       </span>
                       <button
                         onClick={() => {
                           handleSelectSubject(sub.id);
                           setCurrentStep(3);
                         }}
-                        className="px-2.5 py-1 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-lg text-[11px] font-bold flex items-center gap-1 shadow-2xs active:scale-95 transition-all"
+                        className="px-3.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-300 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1.5 shadow-2xs active:scale-95 transition-all cursor-pointer"
                       >
                         <span>৩. অধ্যায়সমূহ যোগ/এডিট করুন ({subChaptersCount})</span>
-                        <ArrowRight className="w-3 h-3" />
+                        <ArrowRight className="w-4 h-4" />
                       </button>
                     </div>
                   </div>
                 );
               })}
               {currentClassSubjects.length === 0 && (
-                <div className="p-4 text-center bg-white rounded-xl border border-slate-200 text-slate-400 text-xs">
+                <div className="p-5 text-center bg-white rounded-2xl border border-slate-200 text-slate-500 text-sm">
                   এই শ্রেণিতে এখনও কোনো বিষয় নেই। উপরের ফরম থেকে সহজে বিষয় যোগ করুন।
                 </div>
               )}
@@ -1797,14 +1797,14 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
         {activeSection !== 'firebase' && activeSection !== 'ads' && currentStep === 3 && (
           <div className="space-y-2.5 animate-fade-in">
             {/* Header controls with Class & Subject selector */}
-            <div className="flex flex-wrap items-center justify-between gap-2 bg-white px-3 py-1.5 rounded-xl border border-slate-200 shadow-2xs">
+            <div className="flex flex-wrap items-center justify-between gap-2.5 bg-white px-3.5 py-2.5 rounded-2xl border border-slate-200 shadow-2xs">
               <div className="flex items-center gap-2 flex-wrap">
-                <div className="flex items-center gap-1">
-                  <span className="text-xs font-bold text-slate-700">শ্রেণি:</span>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs sm:text-sm font-bold text-slate-700">শ্রেণি:</span>
                   <select
                     value={currentClass?.id || selectedClassId}
                     onChange={e => handleSelectClass(e.target.value)}
-                    className="text-xs py-1 px-2 rounded-lg border border-slate-300 bg-white font-bold max-w-[130px] truncate"
+                    className="text-xs sm:text-sm py-1.5 px-3 rounded-xl border border-slate-300 bg-white font-bold max-w-[160px] truncate"
                   >
                     {currentClasses.map(c => (
                       <option key={c.id} value={c.id}>{c.title}</option>
@@ -1812,12 +1812,12 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                   </select>
                 </div>
 
-                <div className="flex items-center gap-1">
-                  <span className="text-xs font-bold text-slate-700">বিষয়:</span>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs sm:text-sm font-bold text-slate-700">বিষয়:</span>
                   <select
                     value={currentSubject?.id || selectedSubjectId}
                     onChange={e => handleSelectSubject(e.target.value)}
-                    className="text-xs py-1 px-2 rounded-lg border border-slate-300 bg-white font-bold max-w-[140px] truncate"
+                    className="text-xs sm:text-sm py-1.5 px-3 rounded-xl border border-slate-300 bg-white font-bold max-w-[180px] truncate"
                   >
                     {currentClassSubjects.map(s => (
                       <option key={s.id} value={s.id}>{s.name}</option>
@@ -1826,18 +1826,18 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                 </div>
               </div>
 
-              <span className="text-[11px] text-slate-500 font-semibold">
-                মোট অধ্যায়: <strong className="text-purple-700">
+              <span className="text-xs sm:text-sm text-slate-600 font-semibold">
+                মোট অধ্যায়: <strong className="text-purple-700 font-bold">
                   {(activeSection === 'mcq' ? currentSubjectMCQChapters : currentSubjectVideoChapters).length}টি
                 </strong>
               </span>
             </div>
 
             {/* Quick Add Bar & Chapter Presets */}
-            <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200/80 rounded-xl p-2.5 shadow-2xs space-y-2">
+            <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200/80 rounded-2xl p-3 sm:p-4 shadow-xs space-y-2.5">
               <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-1.5 text-xs font-bold text-purple-900">
-                  <Zap className="w-4 h-4 text-purple-600" />
+                <div className="flex items-center gap-2 text-sm sm:text-base font-bold text-purple-900">
+                  <Zap className="w-4.5 h-4.5 text-purple-600" />
                   <span>"{currentSubject?.name}"-এ দ্রুত অধ্যায় যোগ করুন:</span>
                 </div>
               </div>
@@ -1848,35 +1848,35 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                   e.preventDefault();
                   handleAddChapterQuick(quickChapNum, quickChapTitle);
                 }}
-                className="flex items-center gap-1.5 flex-wrap sm:flex-nowrap"
+                className="flex items-center gap-2 flex-wrap sm:flex-nowrap"
               >
                 <input
                   type="text"
                   value={quickChapNum}
                   onChange={e => setQuickChapNum(e.target.value)}
                   placeholder={`অধ্যায় নং (${(activeSection === 'mcq' ? currentSubjectMCQChapters : currentSubjectVideoChapters).length + 1}ম অধ্যায়)...`}
-                  className="w-28 sm:w-32 text-xs font-bold py-1.5 px-2.5 rounded-lg bg-white border border-purple-300 focus:outline-none focus:ring-1 focus:ring-purple-500 shadow-2xs"
+                  className="w-32 sm:w-36 text-sm font-bold py-2 px-3 rounded-xl bg-white border border-purple-300 focus:outline-none focus:ring-2 focus:ring-purple-500 shadow-2xs"
                 />
                 <input
                   type="text"
                   value={quickChapTitle}
                   onChange={e => setQuickChapTitle(e.target.value)}
                   placeholder="অধ্যায়ের নাম (যেমন: ভেক্টর)..."
-                  className="flex-1 min-w-[140px] text-xs font-bold py-1.5 px-2.5 rounded-lg bg-white border border-purple-300 focus:outline-none focus:ring-1 focus:ring-purple-500 shadow-2xs"
+                  className="flex-1 min-w-[150px] text-sm font-bold py-2 px-3 rounded-xl bg-white border border-purple-300 focus:outline-none focus:ring-2 focus:ring-purple-500 shadow-2xs"
                 />
                 <button
                   type="submit"
                   disabled={!quickChapTitle.trim() && !quickChapNum.trim()}
-                  className="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white font-bold text-xs rounded-lg flex items-center gap-1 shadow-2xs active:scale-95 shrink-0 transition-all"
+                  className="px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white font-bold text-sm rounded-xl flex items-center gap-1.5 shadow-sm active:scale-95 shrink-0 transition-all cursor-pointer"
                 >
-                  <Plus className="w-3.5 h-3.5" />
+                  <Plus className="w-4 h-4" />
                   <span>+ অধ্যায় যোগ</span>
                 </button>
               </form>
             </div>
 
             {/* Chapters list for current subject */}
-            <div className="space-y-2">
+            <div className="space-y-2.5">
               {(activeSection === 'mcq' ? currentSubjectMCQChapters : currentSubjectVideoChapters).map((chap, idx) => {
                 const count = activeSection === 'mcq' 
                   ? (chap as MCQChapterItem).questions?.length || 0 
@@ -1884,57 +1884,57 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                 const label = activeSection === 'mcq' ? 'প্রশ্ন' : 'ভিডিও';
 
                 return (
-                  <div key={chap.id} className="bg-white rounded-xl p-2.5 border border-slate-200 shadow-2xs space-y-2 hover:border-slate-300 transition-colors">
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="w-6 h-6 rounded-md bg-purple-100 text-purple-800 flex items-center justify-center font-bold text-[11px] shrink-0">
+                  <div key={chap.id} className="bg-white rounded-2xl p-3 sm:p-3.5 border border-slate-200 shadow-2xs space-y-2.5 hover:border-slate-300 transition-colors">
+                    <div className="flex items-center justify-between gap-2.5">
+                      <div className="w-7 h-7 rounded-lg bg-purple-100 text-purple-800 flex items-center justify-center font-bold text-xs shrink-0">
                         {idx + 1}
                       </div>
-                      <div className="flex-1 grid grid-cols-1 sm:grid-cols-3 gap-1.5">
+                      <div className="flex-1 grid grid-cols-1 sm:grid-cols-3 gap-2">
                         <input
                           type="text"
                           value={chap.chapterNumber}
                           onChange={e => handleUpdateChapter(chap.id, 'chapterNumber', e.target.value)}
-                          className="text-xs font-bold py-1 px-2 rounded-md bg-slate-50 border border-slate-200 focus:bg-white focus:outline-none"
+                          className="text-sm font-bold py-1.5 px-3 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-purple-400"
                           placeholder="অধ্যায় নম্বর (১ম অধ্যায়)"
                         />
                         <input
                           type="text"
                           value={chap.title}
                           onChange={e => handleUpdateChapter(chap.id, 'title', e.target.value)}
-                          className="text-xs font-bold py-1 px-2 rounded-md bg-slate-50 border border-slate-200 focus:bg-white focus:outline-none"
+                          className="text-sm font-bold py-1.5 px-3 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-purple-400"
                           placeholder="অধ্যায়ের নাম"
                         />
                         <input
                           type="text"
                           value={chap.subtitle}
                           onChange={e => handleUpdateChapter(chap.id, 'subtitle', e.target.value)}
-                          className="text-xs py-1 px-2 rounded-md bg-slate-50 border border-slate-200 focus:bg-white focus:outline-none"
+                          className="text-sm py-1.5 px-3 rounded-xl bg-slate-50 border border-slate-200 focus:bg-white focus:outline-none focus:ring-2 focus:ring-purple-400"
                           placeholder="সাবটাইটেল"
                         />
                       </div>
 
                       {/* Clone & Delete buttons */}
-                      <div className="flex items-center gap-1 shrink-0">
+                      <div className="flex items-center gap-1.5 shrink-0">
                         <button
                           onClick={() => handleDuplicateChapter(chap.id)}
-                          className="text-slate-400 hover:text-purple-600 p-1 transition-colors"
+                          className="text-slate-400 hover:text-purple-600 p-1.5 rounded-lg hover:bg-purple-50 transition-colors cursor-pointer"
                           title="এই অধ্যায়টি ক্লোন / ডুপ্লিকেট করুন"
                         >
-                          <Copy className="w-4 h-4" />
+                          <Copy className="w-4.5 h-4.5" />
                         </button>
                         <button
                           onClick={() => handleDeleteChapter(chap.id)}
-                          className="text-slate-400 hover:text-rose-600 p-1 transition-colors"
+                          className="text-slate-400 hover:text-rose-600 p-1.5 rounded-lg hover:bg-rose-50 transition-colors cursor-pointer"
                           title="মুছে ফেলুন"
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Trash2 className="w-4.5 h-4.5" />
                         </button>
                       </div>
                     </div>
 
                     {/* Direct button to open and edit content for this specific chapter */}
-                    <div className="flex items-center justify-between border-t border-slate-100 pt-1.5 pl-8 pr-1">
-                      <span className="text-[11px] text-slate-500 font-medium">
+                    <div className="flex items-center justify-between border-t border-slate-100 pt-2 pl-9 pr-1">
+                      <span className="text-xs sm:text-sm text-slate-500 font-medium">
                         কন্টেন্ট সংখ্যা: <strong className="text-slate-800">{count}টি {label}</strong>
                       </span>
                       <button
@@ -1942,16 +1942,16 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                           handleSelectChapter(chap.id);
                           setCurrentStep(4);
                         }}
-                        className={`px-3 py-1 rounded-lg text-[11px] font-bold flex items-center gap-1.5 shadow-2xs active:scale-95 transition-all ${
+                        className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 shadow-2xs active:scale-95 transition-all cursor-pointer ${
                           activeSection === 'mcq'
                             ? 'bg-purple-600 hover:bg-purple-700 text-white'
                             : 'bg-emerald-600 hover:bg-emerald-700 text-white'
                         }`}
                         title={`এই অধ্যায়ের ${label} এডিট করতে ক্লিক করুন`}
                       >
-                        {activeSection === 'mcq' ? <CheckSquare className="w-3 h-3" /> : <Video className="w-3 h-3" />}
+                        {activeSection === 'mcq' ? <CheckSquare className="w-4 h-4" /> : <Video className="w-4 h-4" />}
                         <span>৪. এই অধ্যায়ের {label} যোগ/এডিট করুন ({count})</span>
-                        <ArrowRight className="w-3 h-3" />
+                        <ArrowRight className="w-4 h-4" />
                       </button>
                     </div>
                   </div>
@@ -1959,9 +1959,9 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
               })}
 
               {(activeSection === 'mcq' ? currentSubjectMCQChapters : currentSubjectVideoChapters).length === 0 && (
-                <div className="p-4 text-center bg-white rounded-xl border border-slate-200 text-slate-500 text-xs space-y-1">
-                  <p className="font-semibold text-slate-700">"{currentSubject?.name}" বিষয়ে কোনো অধ্যায় নেই।</p>
-                  <p className="text-[11px] text-slate-400">উপরে 'দ্রুত অধ্যায় যোগ করুন' ফরম থেকে বাটন চাপুন।</p>
+                <div className="p-5 text-center bg-white rounded-2xl border border-slate-200 text-slate-500 text-sm space-y-1">
+                  <p className="font-semibold text-slate-800">"{currentSubject?.name}" বিষয়ে কোনো অধ্যায় নেই।</p>
+                  <p className="text-xs text-slate-400">উপরে 'দ্রুত অধ্যায় যোগ করুন' ফরম থেকে বাটন চাপুন।</p>
                 </div>
               )}
             </div>
@@ -1970,20 +1970,20 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
 
         {/* STEP 4: VIDEOS OR MCQ QUESTIONS */}
         {activeSection !== 'firebase' && activeSection !== 'ads' && currentStep === 4 && (
-          <div className="space-y-2.5 animate-fade-in">
+          <div className="space-y-3 animate-fade-in">
             {/* Top Breadcrumb Context Banner - Clarifies Class > Subject > Chapter hierarchy */}
-            <div className="bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/5 border border-amber-200 rounded-xl p-2 sm:p-2.5 shadow-2xs space-y-1.5">
+            <div className="bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/5 border border-amber-200 rounded-2xl p-3 sm:p-3.5 shadow-2xs space-y-2">
               <div className="flex items-center justify-between gap-2 flex-wrap">
-                <div className="flex items-center gap-1.5 text-xs flex-wrap font-bold">
-                  <span className="text-[10px] text-amber-800 bg-amber-100 px-2 py-0.5 rounded font-extrabold">
+                <div className="flex items-center gap-2 text-xs sm:text-sm flex-wrap font-bold">
+                  <span className="text-xs text-amber-800 bg-amber-100 px-2.5 py-1 rounded-lg font-extrabold">
                     শ্রেণি: {currentClass?.title || 'নির্ধারিত নয়'}
                   </span>
                   <span className="text-slate-400">❯</span>
-                  <span className="text-[10px] text-blue-800 bg-blue-100 px-2 py-0.5 rounded font-extrabold">
+                  <span className="text-xs text-blue-800 bg-blue-100 px-2.5 py-1 rounded-lg font-extrabold">
                     বিষয়: {currentSubject?.name || 'নির্ধারিত নয়'}
                   </span>
                   <span className="text-slate-400">❯</span>
-                  <span className="text-[10px] text-purple-900 bg-purple-100 px-2 py-0.5 rounded font-extrabold">
+                  <span className="text-xs text-purple-900 bg-purple-100 px-2.5 py-1 rounded-lg font-extrabold">
                     অধ্যায়: {activeSection === 'mcq'
                       ? (currentMCQChapter?.chapterNumber ? `${currentMCQChapter.chapterNumber} - ${currentMCQChapter.title}` : 'কোনো অধ্যায় নেই')
                       : (currentVideoChapter?.chapterNumber ? `${currentVideoChapter.chapterNumber} - ${currentVideoChapter.title}` : 'কোনো অধ্যায় নেই')}
@@ -1992,23 +1992,23 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
 
                 <button
                   onClick={() => setCurrentStep(3)}
-                  className="text-[11px] font-bold text-amber-800 bg-white hover:bg-amber-50 border border-amber-300 px-2 py-0.5 rounded-lg shadow-2xs flex items-center gap-1 transition-all active:scale-95"
+                  className="text-xs sm:text-sm font-bold text-amber-800 bg-white hover:bg-amber-50 border border-amber-300 px-3 py-1.5 rounded-xl shadow-2xs flex items-center gap-1.5 transition-all active:scale-95 cursor-pointer"
                 >
-                  <ArrowLeft className="w-3 h-3" />
+                  <ArrowLeft className="w-4 h-4" />
                   <span>↶ অধ্যায় তালিকা</span>
                 </button>
               </div>
             </div>
 
             {/* Cascading Filter Bar for Step 4 */}
-            <div className="flex flex-wrap items-center justify-between gap-2 bg-white px-3 py-1.5 rounded-xl border border-slate-200 shadow-2xs">
+            <div className="flex flex-wrap items-center justify-between gap-2.5 bg-white px-3.5 py-2.5 rounded-2xl border border-slate-200 shadow-2xs">
               <div className="flex items-center gap-2 flex-wrap">
-                <div className="flex items-center gap-1">
-                  <span className="text-xs font-bold text-slate-700">শ্রেণি:</span>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs sm:text-sm font-bold text-slate-700">শ্রেণি:</span>
                   <select
                     value={currentClass?.id || selectedClassId}
                     onChange={e => handleSelectClass(e.target.value)}
-                    className="text-xs py-1 px-1.5 rounded-lg border border-slate-300 bg-white font-bold max-w-[110px] truncate"
+                    className="text-xs sm:text-sm py-1.5 px-2.5 rounded-xl border border-slate-300 bg-white font-bold max-w-[130px] truncate"
                   >
                     {currentClasses.map(c => (
                       <option key={c.id} value={c.id}>{c.title}</option>
@@ -2016,12 +2016,12 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                   </select>
                 </div>
 
-                <div className="flex items-center gap-1">
-                  <span className="text-xs font-bold text-slate-700">বিষয়:</span>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs sm:text-sm font-bold text-slate-700">বিষয়:</span>
                   <select
                     value={currentSubject?.id || selectedSubjectId}
                     onChange={e => handleSelectSubject(e.target.value)}
-                    className="text-xs py-1 px-1.5 rounded-lg border border-slate-300 bg-white font-bold max-w-[120px] truncate"
+                    className="text-xs sm:text-sm py-1.5 px-2.5 rounded-xl border border-slate-300 bg-white font-bold max-w-[140px] truncate"
                   >
                     {currentClassSubjects.map(s => (
                       <option key={s.id} value={s.id}>{s.name}</option>
@@ -2029,12 +2029,12 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                   </select>
                 </div>
 
-                <div className="flex items-center gap-1">
-                  <span className="text-xs font-bold text-slate-700">অধ্যায়:</span>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs sm:text-sm font-bold text-slate-700">অধ্যায়:</span>
                   <select
                     value={activeSection === 'mcq' ? currentMCQChapter?.id || '' : currentVideoChapter?.id || ''}
                     onChange={e => handleSelectChapter(e.target.value)}
-                    className="text-xs py-1 px-1.5 rounded-lg border border-slate-300 bg-white font-bold max-w-[150px] truncate"
+                    className="text-xs sm:text-sm py-1.5 px-2.5 rounded-xl border border-slate-300 bg-white font-bold max-w-[170px] truncate"
                   >
                     {(activeSection === 'mcq' ? currentSubjectMCQChapters : currentSubjectVideoChapters).map(ch => {
                       const count = activeSection === 'mcq' ? (ch as MCQChapterItem).questions?.length || 0 : (ch as ChapterItem).videos?.length || 0;
@@ -2051,38 +2051,38 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
 
               {/* Header Action Button */}
               {activeSection !== 'mcq' ? (
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-2">
                   <button
                     onClick={() => setBulkVideoOpen(prev => !prev)}
-                    className="px-2.5 py-1 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 font-bold text-[11px] rounded-lg flex items-center gap-1 shadow-2xs active:scale-95 transition-all"
+                    className="px-3.5 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 font-bold text-xs sm:text-sm rounded-xl flex items-center gap-1.5 shadow-2xs active:scale-95 transition-all cursor-pointer"
                   >
-                    <ListPlus className="w-3.5 h-3.5" />
+                    <ListPlus className="w-4 h-4" />
                     <span>{bulkVideoOpen ? 'বাল্ক বন্ধ' : '📋 একসাথে অনেক যোগ'}</span>
                   </button>
                   <button
                     onClick={() => currentVideoChapter && handleAddVideo(currentVideoChapter.id)}
                     disabled={!currentVideoChapter}
-                    className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold text-[11px] rounded-lg flex items-center gap-1 shadow-2xs active:scale-95 shrink-0 transition-all"
+                    className="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-bold text-xs sm:text-sm rounded-xl flex items-center gap-1.5 shadow-sm active:scale-95 shrink-0 transition-all cursor-pointer"
                   >
-                    <Plus className="w-3.5 h-3.5" />
+                    <Plus className="w-4 h-4" />
                     <span>+ ভিডিও যোগ</span>
                   </button>
                 </div>
               ) : (
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-2">
                   <button
                     onClick={() => setBulkMCQOpen(prev => !prev)}
-                    className="px-2.5 py-1 bg-purple-50 hover:bg-purple-100 text-purple-800 border border-purple-200 font-bold text-[11px] rounded-lg flex items-center gap-1 shadow-2xs active:scale-95 transition-all"
+                    className="px-3.5 py-1.5 bg-purple-50 hover:bg-purple-100 text-purple-800 border border-purple-300 font-bold text-xs sm:text-sm rounded-xl flex items-center gap-1.5 shadow-2xs active:scale-95 transition-all cursor-pointer"
                   >
-                    <ListPlus className="w-3.5 h-3.5" />
+                    <ListPlus className="w-4 h-4" />
                     <span>{bulkMCQOpen ? 'বাল্ক বন্ধ' : '📋 একসাথে অনেক প্রশ্ন'}</span>
                   </button>
                   <button
                     onClick={() => currentMCQChapter && handleAddQuestion(currentMCQChapter.id)}
                     disabled={!currentMCQChapter}
-                    className="px-2.5 py-1 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white font-bold text-[11px] rounded-lg flex items-center gap-1 shadow-2xs active:scale-95 shrink-0 transition-all"
+                    className="px-3.5 py-1.5 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white font-bold text-xs sm:text-sm rounded-xl flex items-center gap-1.5 shadow-sm active:scale-95 shrink-0 transition-all cursor-pointer"
                   >
-                    <Plus className="w-3.5 h-3.5" />
+                    <Plus className="w-4 h-4" />
                     <span>+ প্রশ্ন যোগ</span>
                   </button>
                 </div>

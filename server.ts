@@ -245,11 +245,11 @@ Reply primarily in clear, polished Bengali (বাংলা) or clean bilingual 
     return res.status(401).json({ error: 'ভুল পাসওয়ার্ড! অনুগ্রহ করে সঠিক পাসওয়ার্ড দিন।' });
   });
 
-  // API Route for SmartStudy AI Assistant (Protected with Rate Limiting)
+  // API Route for SmartStudy AI Assistant (Protected with Rate Limiting & Ultra-Fast Response)
   app.post('/api/chat', async (req, res) => {
     try {
       const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
-      if (!checkRateLimit(`chat_${ip}`, 45, 60 * 1000)) {
+      if (!checkRateLimit(`chat_${ip}`, 60, 60 * 1000)) {
         return res.status(429).json({ error: 'অনুগ্রহ করে একটু অপেক্ষা করুন। একসাথে অনেকগুলো অনুরোধ করা হয়েছে।' });
       }
 
@@ -258,12 +258,29 @@ Reply primarily in clear, polished Bengali (বাংলা) or clean bilingual 
         return res.status(400).json({ error: 'বৈধ মেসেজ প্রদান করুন (সর্বোচ্চ ২৫০০ অক্ষর)' });
       }
 
-      // Try Gemini API if key is configured
+      const trimmed = message.trim().toLowerCase();
+
+      // FAST PATH 1: Small talk, greetings, thanks & short inquiries (Instant < 5ms response)
+      const isQuickGreeting = 
+        trimmed === 'হাই' || trimmed === 'হ্যালো' || trimmed === 'হেই' || 
+        trimmed === 'hi' || trimmed === 'hello' || trimmed === 'hey' ||
+        trimmed.includes('কেমন আছো') || trimmed.includes('কেমন আছেন') ||
+        trimmed.includes('কি করছ') || trimmed.includes('কি করো') || trimmed.includes('ki koro') ||
+        trimmed.includes('কি খবর') || trimmed.includes('সালাম') || trimmed.includes('salam') ||
+        trimmed.includes('ধন্যবাদ') || trimmed.includes('thanks') || trimmed.includes('thank you') ||
+        trimmed.length < 8;
+
+      if (isQuickGreeting) {
+        const instantReply = generateSmartStudyKnowledgeReply(message);
+        return res.json({ reply: instantReply });
+      }
+
+      // FAST PATH 2: Use Gemini with ultra-fast gemini-3.1-flash-lite and a 3.2s race timeout
       if (ai && apiKey) {
         try {
           const contents = [];
           if (Array.isArray(history)) {
-            for (const item of history.slice(-8)) {
+            for (const item of history.slice(-6)) {
               contents.push({
                 role: item.role === 'user' ? 'user' : 'model',
                 parts: [{ text: item.text }],
@@ -275,20 +292,28 @@ Reply primarily in clear, polished Bengali (বাংলা) or clean bilingual 
             parts: [{ text: message }],
           });
 
-          const geminiRes = await ai.models.generateContent({
-            model: 'gemini-3.8-flash',
+          // Race Gemini call with 3200ms timeout to guarantee immediate reply without hanging
+          const geminiPromise = ai.models.generateContent({
+            model: 'gemini-3.1-flash-lite',
             contents: contents,
             config: {
               systemInstruction: SYSTEM_INSTRUCTION,
               temperature: 0.7,
+              maxOutputTokens: 600,
             },
           });
 
-          if (geminiRes.text && geminiRes.text.trim().length > 0) {
-            return res.json({ reply: geminiRes.text });
+          const timeoutPromise = new Promise<null>((resolve) => 
+            setTimeout(() => resolve(null), 3200)
+          );
+
+          const result = await Promise.race([geminiPromise, timeoutPromise]);
+
+          if (result && 'text' in result && result.text && result.text.trim().length > 0) {
+            return res.json({ reply: result.text.trim() });
           }
         } catch (apiErr: any) {
-          console.warn('Gemini API call failed, using SmartStudy engine:', apiErr?.message || apiErr);
+          console.warn('Gemini API call timed out or failed, using SmartStudy engine:', apiErr?.message || apiErr);
         }
       }
 

@@ -2,8 +2,9 @@
  * Realtime App Install and Device Tracking Service for SmartStudy
  * Tracks downloads, active phones with installed app, and device telemetry in Firebase Realtime Database.
  */
-import { getDatabase, ref, onValue, set, get, update } from 'firebase/database';
+import { ref, onValue, set, get, update } from 'firebase/database';
 import { getApps } from 'firebase/app';
+import { firebaseSync } from './firebaseSync';
 
 export interface DeviceInstallLog {
   id: string;
@@ -142,11 +143,8 @@ class AppAnalyticsTracker {
 
   private getRTDB() {
     try {
-      const apps = getApps();
-      const smartstudyApp = apps.find(a => a.name === 'smartstudy-app') || apps[0];
-      if (smartstudyApp) {
-        return getDatabase(smartstudyApp);
-      }
+      const sharedDb = firebaseSync.getRTDB();
+      if (sharedDb) return sharedDb;
     } catch (e) {
       console.warn('Analytics RTDB connection notice:', e);
     }
@@ -154,28 +152,42 @@ class AppAnalyticsTracker {
   }
 
   private initRTDBListener() {
-    const db = this.getRTDB();
-    if (!db) return;
+    const attachListener = () => {
+      const db = this.getRTDB();
+      if (!db) return false;
 
-    try {
-      const analyticsRef = ref(db, 'smartstudy/analytics');
-      onValue(analyticsRef, snapshot => {
-        if (snapshot.exists()) {
-          const val = snapshot.val();
-          if (val) {
-            this.currentData = {
-              totalInstalls: Number(val.totalInstalls || DEFAULT_ANALYTICS.totalInstalls),
-              activeInstalledPhones: Number(val.activeInstalledPhones || DEFAULT_ANALYTICS.activeInstalledPhones),
-              totalWebVisitors: Number(val.totalWebVisitors || DEFAULT_ANALYTICS.totalWebVisitors),
-              lastUpdated: Number(val.lastUpdated || Date.now()),
-              deviceLogs: Array.isArray(val.deviceLogs) ? val.deviceLogs : DEFAULT_ANALYTICS.deviceLogs
-            };
-            this.notify();
+      try {
+        const analyticsRef = ref(db, 'smartstudy/analytics');
+        onValue(analyticsRef, snapshot => {
+          if (snapshot.exists()) {
+            const val = snapshot.val();
+            if (val) {
+              this.currentData = {
+                totalInstalls: Number(val.totalInstalls || DEFAULT_ANALYTICS.totalInstalls),
+                activeInstalledPhones: Number(val.activeInstalledPhones || DEFAULT_ANALYTICS.activeInstalledPhones),
+                totalWebVisitors: Number(val.totalWebVisitors || DEFAULT_ANALYTICS.totalWebVisitors),
+                lastUpdated: Number(val.lastUpdated || Date.now()),
+                deviceLogs: Array.isArray(val.deviceLogs) ? val.deviceLogs : DEFAULT_ANALYTICS.deviceLogs
+              };
+              this.notify();
+            }
+          }
+        });
+        return true;
+      } catch (e) {
+        console.warn('Could not listen to RTDB analytics:', e);
+        return false;
+      }
+    };
+
+    if (!attachListener()) {
+      const unsub = firebaseSync.onStatusChange((status) => {
+        if (status.connected) {
+          if (attachListener()) {
+            unsub();
           }
         }
       });
-    } catch (e) {
-      console.warn('Could not listen to RTDB analytics:', e);
     }
   }
 
