@@ -126,11 +126,13 @@ class FirebaseSyncManager {
         }
       }
 
-      // Initialize Firestore
-      try {
-        this.firestore = getFirestore(this.app);
-      } catch (err) {
-        console.warn('Firestore init warning:', err);
+      // Initialize Firestore only if Realtime DB is not active and Project ID is provided
+      if (!config.databaseURL && config.projectId) {
+        try {
+          this.firestore = getFirestore(this.app);
+        } catch (err) {
+          console.warn('Firestore init warning:', err);
+        }
       }
 
       this.isConnected = true;
@@ -240,8 +242,8 @@ class FirebaseSyncManager {
       }
     }
 
-    // 2. Listen to Firestore as fallback or complementary
-    if (this.firestore) {
+    // 2. Listen to Firestore as fallback only if RTDB is not configured
+    if (!this.rtdb && this.firestore) {
       try {
         const docRef = doc(this.firestore, 'smartstudy', 'content');
         this.firestoreUnsub = onSnapshot(
