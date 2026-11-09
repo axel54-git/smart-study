@@ -18,7 +18,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({ currentTab, onSelectTab })
         {/* Tab 1: Home */}
         <button
           onClick={() => onSelectTab('home')}
-          className={`flex-1 flex flex-col items-center justify-center py-0.5 transition-all duration-200 ${
+          className={`flex-1 flex flex-col items-center justify-center py-1 transition-all duration-75 active:scale-90 active:opacity-75 cursor-pointer touch-manipulation ${
             currentTab === 'home'
               ? 'text-amber-600 font-semibold scale-105'
               : 'text-slate-500 hover:text-slate-800'
@@ -32,7 +32,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({ currentTab, onSelectTab })
         {/* Tab 2: Courses / Study */}
         <button
           onClick={() => onSelectTab('courses')}
-          className={`flex-1 flex flex-col items-center justify-center py-0.5 transition-all duration-200 ${
+          className={`flex-1 flex flex-col items-center justify-center py-1 transition-all duration-75 active:scale-90 active:opacity-75 cursor-pointer touch-manipulation ${
             currentTab === 'courses'
               ? 'text-amber-600 font-semibold scale-105'
               : 'text-slate-500 hover:text-slate-800'
@@ -47,7 +47,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({ currentTab, onSelectTab })
         <div className="flex-1 flex justify-center relative -top-3.5">
           <button
             onClick={() => onSelectTab('quizHub')}
-            className={`w-11 h-11 rounded-full bg-gradient-to-tr from-amber-500 via-amber-400 to-yellow-300 p-0.5 shadow-md shadow-amber-500/30 hover:scale-105 active:scale-95 transition-all duration-300 flex items-center justify-center group ${
+            className={`w-11 h-11 rounded-full bg-gradient-to-tr from-amber-500 via-amber-400 to-yellow-300 p-0.5 shadow-md shadow-amber-500/30 hover:scale-105 active:scale-90 active:opacity-80 transition-all duration-75 flex items-center justify-center group cursor-pointer touch-manipulation ${
               currentTab === 'quizHub' ? 'ring-2 ring-amber-400 ring-offset-1' : ''
             }`}
             title="এমসিকিউ পরীক্ষা ও প্র্যাকটিস"
@@ -63,21 +63,21 @@ export const BottomNav: React.FC<BottomNavProps> = ({ currentTab, onSelectTab })
         {/* Tab 4: AI Assistant (Ai) with Robot Mascot Logo */}
         <button
           onClick={() => onSelectTab('rewards')}
-          className={`flex-1 flex flex-col items-center justify-center py-0.5 transition-all duration-200 ${
+          className={`flex-1 flex flex-col items-center justify-center py-1 transition-all duration-75 active:scale-90 active:opacity-75 cursor-pointer touch-manipulation ${
             currentTab === 'rewards'
               ? 'text-amber-600 font-semibold scale-105'
               : 'text-slate-500 hover:text-slate-800'
           }`}
           aria-label="Ai"
         >
-          <CuteRobotMascot className={`w-[17px] h-[17px] transition-transform duration-200 ${currentTab === 'rewards' ? 'scale-110 drop-shadow-xs' : 'opacity-85'}`} />
+          <CuteRobotMascot className={`w-[17px] h-[17px] transition-transform duration-75 ${currentTab === 'rewards' ? 'scale-110 drop-shadow-xs' : 'opacity-85'}`} />
           <span className="text-[9px] mt-0.5 tracking-tight font-semibold">Ai</span>
         </button>
 
         {/* Tab 5: Profile */}
         <button
           onClick={() => onSelectTab('profile')}
-          className={`flex-1 flex flex-col items-center justify-center py-0.5 transition-all duration-200 ${
+          className={`flex-1 flex flex-col items-center justify-center py-1 transition-all duration-75 active:scale-90 active:opacity-75 cursor-pointer touch-manipulation ${
             currentTab === 'profile'
               ? 'text-amber-600 font-semibold scale-105'
               : 'text-slate-500 hover:text-slate-800'

@@ -275,8 +275,9 @@ Reply primarily in clear, polished Bengali (বাংলা) or clean bilingual 
         return res.json({ reply: instantReply });
       }
 
-      // FAST PATH 2: Use Gemini with ultra-fast gemini-3.1-flash-lite and a 3.2s race timeout
-      if (ai && apiKey) {
+      // FAST PATH 2: Use Gemini if a valid Google AI Studio API key (starts with AIza) is present
+      const isValidGoogleApiKey = apiKey && apiKey.startsWith('AIza');
+      if (ai && isValidGoogleApiKey) {
         try {
           const contents = [];
           if (Array.isArray(history)) {
@@ -292,9 +293,9 @@ Reply primarily in clear, polished Bengali (বাংলা) or clean bilingual 
             parts: [{ text: message }],
           });
 
-          // Race Gemini call with 3200ms timeout to guarantee immediate reply without hanging
+          // Race Gemini call with 1800ms timeout for instant fast response
           const geminiPromise = ai.models.generateContent({
-            model: 'gemini-3.1-flash-lite',
+            model: 'gemini-2.5-flash',
             contents: contents,
             config: {
               systemInstruction: SYSTEM_INSTRUCTION,
@@ -304,7 +305,7 @@ Reply primarily in clear, polished Bengali (বাংলা) or clean bilingual 
           });
 
           const timeoutPromise = new Promise<null>((resolve) => 
-            setTimeout(() => resolve(null), 3200)
+            setTimeout(() => resolve(null), 1800)
           );
 
           const result = await Promise.race([geminiPromise, timeoutPromise]);

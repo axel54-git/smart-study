@@ -39,12 +39,27 @@ import {
   MCQChapterItem 
 } from './data/mcqData';
 import { AdsSystemConfig, DEFAULT_ADS_CONFIG } from './data/adsConfig';
-import { verifyAdminCredentials } from './utils/security';
+import { 
+  verifyAdminCredentials, 
+  isStoredAdminAuthenticated, 
+  saveAdminSession, 
+  clearAdminSession 
+} from './utils/security';
 
 import { firebaseSync } from './services/firebaseSync';
 
 export default function App() {
   const [currentTab, setCurrentTab] = useState<NavTab>('home');
+  const [homeResetKey, setHomeResetKey] = useState(0);
+
+  // Instant Home Navigation from any page or subview
+  const navigateToHome = () => {
+    setCurrentTab('home');
+    setHomeResetKey((k) => k + 1);
+    setNavState({ title: null, onBack: null });
+    setShowAdminPinModal(false);
+    window.scrollTo(0, 0);
+  };
 
   // Top Header Navigation State (Back Button & Active Page Title)
   const [navState, setNavState] = useState<{ title: string | null; onBack: (() => void) | null }>({
@@ -175,6 +190,7 @@ export default function App() {
     try {
       const res = await verifyAdminCredentials(pinInput);
       if (res.success) {
+        saveAdminSession(); // লোকাল স্টোরেজে স্থায়ীভাবে সেশন সেভ করা হলো
         setIsAdminOpen(true);
         setShowAdminPinModal(false);
         setPinInput('');
@@ -331,6 +347,10 @@ export default function App() {
           }).catch(console.warn);
         }}
         onExitAdmin={() => setIsAdminOpen(false)}
+        onLogoutAdmin={() => {
+          clearAdminSession();
+          setIsAdminOpen(false);
+        }}
       />
     );
   }
@@ -363,7 +383,9 @@ export default function App() {
               <img
                 src="/assets/aistudio/smartstudy_logo.png"
                 alt="SmartStudy"
-                className="h-8 sm:h-9 w-auto max-w-[150px] sm:max-w-[185px] object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.06)]"
+                onClick={navigateToHome}
+                className="h-8 sm:h-9 w-auto max-w-[150px] sm:max-w-[185px] object-contain drop-shadow-[0_2px_8px_rgba(0,0,0,0.06)] cursor-pointer active:scale-95 transition-transform"
+                title="হোম পেজে যান"
               />
             </div>
 
@@ -408,6 +430,7 @@ export default function App() {
             chapters={homeChapters}
             adsConfig={adsConfig}
             onNavChange={setNavState}
+            resetTrigger={homeResetKey}
           />
         )}
 
@@ -475,9 +498,16 @@ export default function App() {
             onOpenCalculator={() => {
               setCurrentTab('calculator');
               setNavState({ title: null, onBack: null });
-              window.scrollTo({ top: 0, behavior: 'smooth' });
+              window.scrollTo(0, 0);
             }}
-            onOpenAdmin={() => setShowAdminPinModal(true)}
+            onOpenAdmin={() => {
+              if (isStoredAdminAuthenticated()) {
+                setIsAdminOpen(true);
+                setShowAdminPinModal(false);
+              } else {
+                setShowAdminPinModal(true);
+              }
+            }}
           />
         )}
 
@@ -487,9 +517,13 @@ export default function App() {
       <BottomNav
         currentTab={currentTab}
         onSelectTab={(tab) => {
-          setCurrentTab(tab);
-          setNavState({ title: null, onBack: null });
-          window.scrollTo({ top: 0, behavior: 'smooth' });
+          if (tab === 'home') {
+            navigateToHome();
+          } else {
+            setCurrentTab(tab);
+            setNavState({ title: null, onBack: null });
+            window.scrollTo(0, 0);
+          }
         }}
       />
 

@@ -27,6 +27,7 @@ interface HomeSectionProps {
   chapters: ChapterItem[];
   adsConfig?: AdsSystemConfig;
   onNavChange?: (nav: { title: string | null; onBack: (() => void) | null }) => void;
+  resetTrigger?: number;
 }
 
 export const HomeSection: React.FC<HomeSectionProps> = ({
@@ -34,13 +35,22 @@ export const HomeSection: React.FC<HomeSectionProps> = ({
   subjects,
   chapters,
   adsConfig,
-  onNavChange
+  onNavChange,
+  resetTrigger
 }) => {
   // Navigation State for Home Tab
   const [selectedClassId, setSelectedClassId] = useState<string | null>(null);
   const [selectedSubjectId, setSelectedSubjectId] = useState<string | null>(null);
   const [selectedChapterId, setSelectedChapterId] = useState<string | null>(null);
   const [activeVideo, setActiveVideo] = useState<VideoItem | null>(null);
+
+  // Immediately reset back to root classes view whenever resetTrigger is incremented
+  useEffect(() => {
+    setSelectedClassId(null);
+    setSelectedSubjectId(null);
+    setSelectedChapterId(null);
+    setActiveVideo(null);
+  }, [resetTrigger]);
 
   // Derived current items
   const currentClass = classes.find(c => c.id === selectedClassId);

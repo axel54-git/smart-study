@@ -256,19 +256,21 @@ export const SmartStudyAIChat: React.FC<SmartStudyAIChatProps> = ({
           );
         })}
 
-        {/* Loading Indicator */}
+        {/* Loading Indicator Matching Screenshot */}
         {isLoading && (
           <div className="flex items-start gap-2.5 animate-fade-in">
-            <div className="w-9 h-9 rounded-full bg-slate-900 text-white flex items-center justify-center shrink-0 shadow-sm animate-pulse">
+            <div className="w-10 h-10 rounded-full bg-slate-900 text-white flex items-center justify-center shrink-0 shadow-sm animate-pulse border border-slate-700/50">
               <CuteRobotMascot className="w-6 h-6 text-white" />
             </div>
-            <div className="bg-white rounded-2xl rounded-tl-xs p-4 shadow-sm border border-slate-200 flex items-center gap-2">
+            <div className="bg-white rounded-2xl rounded-tl-xs px-4 py-3 shadow-xs border border-slate-200/90 flex items-center gap-2.5">
               <div className="flex gap-1.5 py-1">
-                <span className="w-2 h-2 rounded-full bg-amber-500 animate-bounce" style={{ animationDelay: '0ms' }} />
-                <span className="w-2 h-2 rounded-full bg-amber-500 animate-bounce" style={{ animationDelay: '150ms' }} />
-                <span className="w-2 h-2 rounded-full bg-amber-500 animate-bounce" style={{ animationDelay: '300ms' }} />
+                <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-bounce" style={{ animationDelay: '0ms' }} />
+                <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-bounce" style={{ animationDelay: '150ms' }} />
+                <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-bounce" style={{ animationDelay: '300ms' }} />
               </div>
-              <span className="text-xs text-slate-500 font-semibold tracking-wide ml-1">Typing...</span>
+              <span className="text-xs text-slate-700 font-bold tracking-wide">
+                Typing...
+              </span>
             </div>
           </div>
         )}

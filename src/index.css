@@ -4,6 +4,19 @@
   --font-sans: 'Hind Siliguri', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
 }
 
+/* Eliminate 300ms mobile tap delay and remove tap highlight flicker */
+*, *::before, *::after {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button, a, [role="button"], input[type="button"], input[type="submit"] {
+  touch-action: manipulation;
+  cursor: pointer;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
 /* Custom smooth scroll and hiding scrollbar for mobile clean look */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
@@ -16,3 +29,4 @@
 body {
   font-family: var(--font-sans);
 }
+

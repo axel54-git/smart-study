@@ -85,3 +85,30 @@ export async function verifyAdminCredentials(input: string): Promise<{ success: 
     return { success: false, error: 'যাচাইকরণে ত্রুটি দেখা দিয়েছে।' };
   }
 }
+
+// LocalStorage Admin Authentication Persistence
+const ADMIN_SESSION_STORAGE_KEY = 'smartstudy_admin_session_auth_v1';
+
+export function isStoredAdminAuthenticated(): boolean {
+  try {
+    return localStorage.getItem(ADMIN_SESSION_STORAGE_KEY) === 'authenticated_valid';
+  } catch {
+    return false;
+  }
+}
+
+export function saveAdminSession(): void {
+  try {
+    localStorage.setItem(ADMIN_SESSION_STORAGE_KEY, 'authenticated_valid');
+  } catch (e) {
+    console.warn('Failed to save admin session in localStorage:', e);
+  }
+}
+
+export function clearAdminSession(): void {
+  try {
+    localStorage.removeItem(ADMIN_SESSION_STORAGE_KEY);
+  } catch (e) {
+    console.warn('Failed to clear admin session in localStorage:', e);
+  }
+}

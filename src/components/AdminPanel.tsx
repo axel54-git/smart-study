@@ -33,7 +33,8 @@ import {
   RefreshCw,
   Megaphone,
   Smartphone,
-  X
+  X,
+  LogOut
 } from 'lucide-react';
 import { 
   ClassCategory, 
@@ -74,6 +75,7 @@ interface AdminPanelProps {
   onSaveAds: (config: AdsSystemConfig) => void;
 
   onExitAdmin: () => void;
+  onLogoutAdmin?: () => void;
 }
 
 export const AdminPanel: React.FC<AdminPanelProps> = ({
@@ -91,7 +93,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   onSaveMCQ,
   adsConfig,
   onSaveAds,
-  onExitAdmin
+  onExitAdmin,
+  onLogoutAdmin
 }) => {
   // Current active section being managed
   const [activeSection, setActiveSection] = useState<AdminSection>('home');
@@ -1400,14 +1403,26 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
         <div className="max-w-5xl mx-auto space-y-2 sm:space-y-2.5">
           {/* Top Row: Quick actions & Brand */}
           <div className="flex items-center justify-between gap-2">
-            <button
-              onClick={onExitAdmin}
-              className="px-3.5 py-1.5 sm:py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs sm:text-sm flex items-center gap-1.5 transition-all shrink-0 active:scale-95 cursor-pointer shadow-2xs"
-              title="ইউজার ভিউতে ফিরে যান"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              <span>ইউজার ভিউ</span>
-            </button>
+            <div className="flex items-center gap-1.5 shrink-0">
+              <button
+                onClick={onExitAdmin}
+                className="px-3 sm:px-3.5 py-1.5 sm:py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs sm:text-sm flex items-center gap-1.5 transition-all shrink-0 active:scale-95 cursor-pointer shadow-2xs"
+                title="ইউজার ভিউতে ফিরে যান (সেশন সচল থাকবে)"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span>ইউজার ভিউ</span>
+              </button>
+              {onLogoutAdmin && (
+                <button
+                  onClick={onLogoutAdmin}
+                  className="px-2.5 py-1.5 sm:py-2 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs sm:text-sm flex items-center gap-1 transition-all shrink-0 active:scale-95 cursor-pointer border border-rose-200/60"
+                  title="এডমিন লগআউট (পাসওয়ার্ড মেমোরি মুছে ফেলুন)"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">লগআউট</span>
+                </button>
+              )}
+            </div>
 
             <div className="flex items-center gap-1.5 text-xs sm:text-sm font-bold text-slate-900 truncate">
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
