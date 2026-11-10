@@ -301,25 +301,9 @@ export const StudentToolsProfile: React.FC<StudentToolsProfileProps> = ({
       {/* PWA App Install Banner Card */}
       <PWAInstallButton variant="card" />
 
-      {/* ---------------- 1. ACADEMIC & STUDY TOOLS GRID (3x3) ---------------- */}
+      {/* ---------------- 1. ACADEMIC & STUDY TOOLS GRID (3x2) ---------------- */}
       <div className="grid grid-cols-3 gap-2.5">
-        {/* 1. Board CQ (Requested Board CQ) */}
-        <button
-          onClick={() => setActiveModal('boardCQ')}
-          className="bg-gradient-to-br from-indigo-50/90 via-blue-50/40 to-white rounded-2xl p-2 sm:p-2.5 flex flex-col items-center justify-center text-center shadow-2xs border border-indigo-200/80 hover:border-indigo-400 hover:shadow-xs hover:scale-[1.02] active:scale-95 transition-all duration-75 cursor-pointer min-h-[84px] sm:min-h-[88px] group touch-manipulation"
-        >
-          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-indigo-100/90 border border-indigo-200/70 flex items-center justify-center mb-1 shadow-2xs group-hover:scale-105 transition-transform">
-            <FileQuestion className="w-5 h-5 text-indigo-700 stroke-[2.2]" />
-          </div>
-          <span className="text-[11px] sm:text-xs font-bold text-slate-800 leading-tight">
-            Board CQ
-          </span>
-          <span className="text-[8.5px] sm:text-[9px] font-medium text-indigo-600/90 mt-0.5 truncate max-w-full px-0.5 leading-none">
-            SSC & HSC CQ
-          </span>
-        </button>
-
-        {/* 2. Scientific Calculator (Casio fx-570MS) */}
+        {/* 1. Scientific Calculator (Casio fx-570MS) */}
         <button
           onClick={onOpenCalculator}
           className="bg-gradient-to-br from-amber-50/90 via-orange-50/40 to-white rounded-2xl p-2 sm:p-2.5 flex flex-col items-center justify-center text-center shadow-2xs border border-amber-200/80 hover:border-amber-400 hover:shadow-xs hover:scale-[1.02] active:scale-95 transition-all duration-75 cursor-pointer min-h-[84px] sm:min-h-[88px] group touch-manipulation"

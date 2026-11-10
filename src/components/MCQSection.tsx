@@ -136,6 +136,45 @@ export const MCQSection: React.FC<MCQSectionProps> = ({
     return num.toString().split('').map(d => bnNums[Number(d)] || d).join('');
   };
 
+  // Soft light pastel coloring helpers for buttons
+  const getSoftClassStyle = (code: string, idx: number) => {
+    if (code === '9-10') {
+      return 'bg-gradient-to-br from-violet-100/95 via-purple-50 to-indigo-50/90 border-violet-200 hover:border-violet-400 shadow-[0_4px_18px_rgba(139,92,246,0.10)]';
+    }
+    if (code === '11-12') {
+      return 'bg-gradient-to-br from-amber-100/95 via-orange-50 to-yellow-50/90 border-amber-200 hover:border-amber-400 shadow-[0_4px_18px_rgba(245,158,11,0.10)]';
+    }
+    const fallbacks = [
+      'bg-gradient-to-br from-teal-100/95 via-emerald-50 to-cyan-50/90 border-teal-200 hover:border-teal-400 shadow-[0_4px_18px_rgba(20,184,166,0.10)]',
+      'bg-gradient-to-br from-rose-100/95 via-pink-50 to-red-50/90 border-rose-200 hover:border-rose-400 shadow-[0_4px_18px_rgba(244,63,94,0.10)]',
+      'bg-gradient-to-br from-sky-100/95 via-blue-50 to-cyan-50/90 border-sky-200 hover:border-sky-400 shadow-[0_4px_18px_rgba(14,165,233,0.10)]'
+    ];
+    return fallbacks[idx % fallbacks.length];
+  };
+
+  const getSoftSubjectStyle = (idx: number) => {
+    const styles = [
+      'bg-gradient-to-br from-rose-100/90 via-pink-50 to-orange-50/80 border-rose-200 hover:border-rose-400 shadow-[0_3px_15px_rgba(244,63,94,0.08)]',
+      'bg-gradient-to-br from-sky-100/90 via-cyan-50 to-blue-50/80 border-sky-200 hover:border-sky-400 shadow-[0_3px_15px_rgba(14,165,233,0.08)]',
+      'bg-gradient-to-br from-emerald-100/90 via-teal-50 to-green-50/80 border-emerald-200 hover:border-emerald-400 shadow-[0_3px_15px_rgba(16,185,129,0.08)]',
+      'bg-gradient-to-br from-violet-100/90 via-purple-50 to-indigo-50/80 border-violet-200 hover:border-violet-400 shadow-[0_3px_15px_rgba(139,92,246,0.08)]',
+      'bg-gradient-to-br from-amber-100/90 via-yellow-50 to-orange-50/80 border-amber-200 hover:border-amber-400 shadow-[0_3px_15px_rgba(245,158,11,0.08)]',
+      'bg-gradient-to-br from-teal-100/90 via-emerald-50 to-cyan-50/80 border-teal-200 hover:border-teal-400 shadow-[0_3px_15px_rgba(20,184,166,0.08)]'
+    ];
+    return styles[idx % styles.length];
+  };
+
+  const getSoftChapterStyle = (idx: number) => {
+    const styles = [
+      'bg-gradient-to-br from-indigo-100/90 via-blue-50 to-violet-50/80 border-indigo-200 hover:border-indigo-400 shadow-[0_3px_15px_rgba(99,102,241,0.08)]',
+      'bg-gradient-to-br from-teal-100/90 via-emerald-50 to-cyan-50/80 border-teal-200 hover:border-teal-400 shadow-[0_3px_15px_rgba(20,184,166,0.08)]',
+      'bg-gradient-to-br from-amber-100/90 via-orange-50 to-yellow-50/80 border-amber-200 hover:border-amber-400 shadow-[0_3px_15px_rgba(245,158,11,0.08)]',
+      'bg-gradient-to-br from-fuchsia-100/90 via-pink-50 to-purple-50/80 border-fuchsia-200 hover:border-fuchsia-400 shadow-[0_3px_15px_rgba(217,70,239,0.08)]',
+      'bg-gradient-to-br from-cyan-100/90 via-sky-50 to-teal-50/80 border-cyan-200 hover:border-cyan-400 shadow-[0_3px_15px_rgba(6,182,212,0.08)]'
+    ];
+    return styles[idx % styles.length];
+  };
+
   return (
     <div className="space-y-4 animate-fade-in py-1">
       {/* ---------------- LEVEL 1: MCQ CLASS SELECTION ---------------- */}
@@ -155,14 +194,18 @@ export const MCQSection: React.FC<MCQSectionProps> = ({
               <React.Fragment key={item.id}>
                 <button
                   onClick={() => setSelectedClassId(item.id)}
-                  className="w-full text-left p-4 sm:p-5 rounded-[26px] bg-white transition-all duration-200 flex items-center justify-between group shadow-[0_4px_20px_rgba(0,0,0,0.06)] border border-slate-100 hover:border-amber-400 hover:shadow-[0_8px_25px_rgba(245,158,11,0.12)] active:scale-[0.99]"
+                  className={`w-full text-left p-4 sm:p-5 rounded-[26px] transition-all duration-200 flex items-center justify-between group border ${getSoftClassStyle(item.code, idx)} hover:shadow-md active:scale-[0.99] cursor-pointer touch-manipulation`}
                 >
                   <div className="flex items-center gap-4">
-                    <div className={`w-14 h-14 rounded-full flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-105 shadow-inner ${item.bgColor}`}>
+                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-105 shadow-inner ${
+                      item.code === '9-10' 
+                        ? 'bg-purple-100 text-purple-700' 
+                        : 'bg-amber-100 text-amber-800'
+                    }`}>
                       {item.code === '9-10' ? (
-                        <BookOpen className={`w-7 h-7 ${item.iconColor}`} />
+                        <BookOpen className="w-7 h-7 text-purple-700" />
                       ) : (
-                        <GraduationCap className={`w-7 h-7 ${item.iconColor}`} />
+                        <GraduationCap className="w-7 h-7 text-amber-800" />
                       )}
                     </div>
 
@@ -171,18 +214,26 @@ export const MCQSection: React.FC<MCQSectionProps> = ({
                         <h3 className="text-base sm:text-lg font-bold text-slate-800 leading-snug group-hover:text-amber-700 transition-colors">
                           {item.title}
                         </h3>
-                        <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
-                          এমসিকিউ
+                        <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full border ${
+                          item.code === '9-10'
+                            ? 'bg-purple-200/80 text-purple-900 border-purple-300/80'
+                            : 'bg-amber-200/80 text-amber-950 border-amber-300/80'
+                        }`}>
+                          {item.code === '9-10' ? 'SSC MCQ' : 'HSC MCQ'}
                         </span>
                       </div>
-                      <p className="text-xs text-slate-500 font-normal mt-0.5">
+                      <p className="text-xs text-slate-600 font-normal mt-0.5">
                         {item.subtitle}
                       </p>
                     </div>
                   </div>
 
-                  <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-amber-500 group-hover:text-white transition-all shrink-0">
-                    <ChevronRight className="w-4 h-4" />
+                  <div className={`w-9 h-9 rounded-full flex items-center justify-center transition-all shrink-0 border ${
+                    item.code === '9-10'
+                      ? 'bg-white/95 text-purple-700 border-purple-200 group-hover:bg-amber-500 group-hover:text-white group-hover:border-amber-500'
+                      : 'bg-white/95 text-amber-800 border-amber-200 group-hover:bg-amber-500 group-hover:text-white group-hover:border-amber-500'
+                  }`}>
+                    <ChevronRight className="w-4 h-4 stroke-[2.3]" />
                   </div>
                 </button>
 
@@ -213,10 +264,10 @@ export const MCQSection: React.FC<MCQSectionProps> = ({
               <React.Fragment key={sub.id}>
                 <button
                   onClick={() => setSelectedSubjectId(sub.id)}
-                  className="w-full text-left p-4 sm:p-5 rounded-[26px] bg-white transition-all duration-200 flex items-center justify-between group shadow-[0_4px_20px_rgba(0,0,0,0.06)] border border-slate-100 hover:border-amber-400 hover:shadow-[0_8px_25px_rgba(245,158,11,0.12)] active:scale-[0.99]"
+                  className={`w-full text-left p-4 sm:p-5 rounded-[26px] transition-all duration-200 flex items-center justify-between group border ${getSoftSubjectStyle(sIdx)} hover:shadow-md active:scale-[0.99] cursor-pointer touch-manipulation`}
                 >
                   <div className="flex items-center gap-4">
-                    <div className={`w-14 h-14 rounded-full flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-105 shadow-inner ${sub.bgColor}`}>
+                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-105 shadow-inner ${sub.bgColor}`}>
                       <BookMarked className={`w-7 h-7 ${sub.iconColor}`} />
                     </div>
 
@@ -224,14 +275,14 @@ export const MCQSection: React.FC<MCQSectionProps> = ({
                       <h3 className="text-base sm:text-lg font-bold text-slate-800 leading-snug group-hover:text-amber-700 transition-colors">
                         {sub.name}
                       </h3>
-                      <p className="text-xs text-slate-500 font-normal mt-0.5">
+                      <p className="text-xs text-slate-600 font-normal mt-0.5">
                         {sub.subtitle}
                       </p>
                     </div>
                   </div>
 
-                  <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-amber-500 group-hover:text-white transition-all shrink-0">
-                    <ChevronRight className="w-4 h-4" />
+                  <div className="w-9 h-9 rounded-full bg-white/95 border border-slate-200/70 shadow-2xs flex items-center justify-center text-slate-500 group-hover:bg-amber-500 group-hover:text-white group-hover:border-amber-500 transition-all shrink-0">
+                    <ChevronRight className="w-4 h-4 stroke-[2.3]" />
                   </div>
                 </button>
 
@@ -271,10 +322,10 @@ export const MCQSection: React.FC<MCQSectionProps> = ({
                     setSelectedChapterId(chap.id);
                     handleResetExam();
                   }}
-                  className="w-full text-left p-4 sm:p-5 rounded-[26px] bg-white transition-all duration-200 flex items-center justify-between group shadow-[0_4px_20px_rgba(0,0,0,0.06)] border border-slate-100 hover:border-amber-400 hover:shadow-[0_8px_25px_rgba(245,158,11,0.12)] active:scale-[0.99] cursor-pointer"
+                  className={`w-full text-left p-4 sm:p-5 rounded-[26px] transition-all duration-200 flex items-center justify-between group border ${getSoftChapterStyle(cIdx)} hover:shadow-md active:scale-[0.99] cursor-pointer touch-manipulation`}
                 >
                   <div className="flex items-center gap-4">
-                    <div className={`w-14 h-14 rounded-full flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-105 shadow-inner ${chap.bgColor}`}>
+                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:scale-105 shadow-inner ${chap.bgColor}`}>
                       <Layers className={`w-7 h-7 ${chap.iconColor}`} />
                     </div>
 
@@ -282,18 +333,18 @@ export const MCQSection: React.FC<MCQSectionProps> = ({
                       <h3 className="text-base sm:text-lg font-bold text-slate-800 leading-snug group-hover:text-amber-700 transition-colors">
                         {chap.chapterNumber}
                       </h3>
-                      <p className="text-xs text-slate-500 font-normal mt-0.5 line-clamp-1">
+                      <p className="text-xs text-slate-600 font-normal mt-0.5 line-clamp-1">
                         {chap.title} {chap.subtitle ? `• ${chap.subtitle}` : ''}
                       </p>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <span className="text-[11px] font-bold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-200">
+                    <span className="text-[11px] font-bold text-amber-700 bg-white/90 px-2.5 py-1 rounded-full border border-amber-200 shadow-2xs">
                       {chap.questions?.length || 0}টি প্রশ্ন
                     </span>
-                    <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-amber-500 group-hover:text-white transition-all shrink-0">
-                      <ChevronRight className="w-4 h-4" />
+                    <div className="w-9 h-9 rounded-full bg-white/95 border border-slate-200/70 shadow-2xs flex items-center justify-center text-slate-500 group-hover:bg-amber-500 group-hover:text-white group-hover:border-amber-500 transition-all shrink-0">
+                      <ChevronRight className="w-4 h-4 stroke-[2.3]" />
                     </div>
                   </div>
                 </button>
