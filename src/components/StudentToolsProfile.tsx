@@ -20,11 +20,16 @@ import {
   Binary,
   Layers,
   ArrowRightLeft,
-  Lock
+  Lock,
+  FileQuestion,
+  Target,
+  GraduationCap,
+  Copy
 } from 'lucide-react';
 import { BannerAd } from './BannerAd';
 import { PWAInstallButton } from './PWAInstallButton';
 import { AdsSystemConfig } from '../data/adsConfig';
+import { BOARD_CQ_DATA } from '../data/boardCQData';
 
 interface StudentToolsProfileProps {
   onOpenCalculator: () => void;
@@ -34,6 +39,8 @@ interface StudentToolsProfileProps {
 
 type ActiveModal = 
   | null
+  | 'boardCQ'
+  | 'studyPlanner'
   | 'ageCalc'
   | 'gpaCalc'
   | 'converter'
@@ -235,214 +242,322 @@ export const StudentToolsProfile: React.FC<StudentToolsProfileProps> = ({
     { id: 'c5', label: 'বোর্ড এমসিকিউ রিভিশন শিট', checked: false },
   ]);
 
+  // ---------------- BOARD CQ STATE ----------------
+  const [cqLevelFilter, setCqLevelFilter] = useState<'ALL' | 'SSC' | 'HSC'>('ALL');
+  const [cqSubjectFilter, setCqSubjectFilter] = useState<string>('ALL');
+  const [cqExpandedId, setCqExpandedId] = useState<string | null>(null);
+  const [copiedCqId, setCopiedCqId] = useState<string | null>(null);
+
+  const handleCopyCQ = (item: any) => {
+    const text = `[Board CQ: ${item.subject} (${item.level}) - ${item.board} ${item.year}]\n${item.chapter}\n\nউদ্দীপক:\n${item.stem}\n\nক. ${item.questions.a}\nখ. ${item.questions.b}\nগ. ${item.questions.c}\nঘ. ${item.questions.d}\n\n[সমাধান / উত্তর]:\nক. ${item.answers.a}\n\nখ. ${item.answers.b}\n\nগ. ${item.answers.c}\n\nঘ. ${item.answers.d}`;
+    navigator.clipboard.writeText(text);
+    setCopiedCqId(item.id);
+    setTimeout(() => setCopiedCqId(null), 2000);
+  };
+
+  // ---------------- STUDY PLANNER STATE ----------------
+  const [targetHours, setTargetHours] = useState(() => {
+    return localStorage.getItem('smartstudy_target_hours') || '4';
+  });
+  const [plannerTasks, setPlannerTasks] = useState<{ id: string; subject: string; target: string; done: boolean }[]>(() => {
+    const saved = localStorage.getItem('smartstudy_planner_tasks');
+    return saved ? JSON.parse(saved) : [
+      { id: 'p1', subject: 'Board CQ', target: 'HSC ICT Chapter 5 (2 Questions)', done: true },
+      { id: 'p2', subject: 'Math', target: 'Trigonometry & Calculus formulas', done: false },
+      { id: 'p3', subject: 'Bangla', target: 'Aparichita CQ Question practice', done: false },
+    ];
+  });
+  const [newPlannerSubject, setNewPlannerSubject] = useState('ICT');
+  const [newPlannerTarget, setNewPlannerTarget] = useState('');
+
+  const handleAddPlannerTask = () => {
+    if (!newPlannerTarget.trim()) return;
+    const newTask = {
+      id: Date.now().toString(),
+      subject: newPlannerSubject.trim() || 'General',
+      target: newPlannerTarget.trim(),
+      done: false
+    };
+    const updated = [...plannerTasks, newTask];
+    setPlannerTasks(updated);
+    localStorage.setItem('smartstudy_planner_tasks', JSON.stringify(updated));
+    setNewPlannerTarget('');
+  };
+
+  const handleTogglePlannerTask = (id: string) => {
+    const updated = plannerTasks.map(t => t.id === id ? { ...t, done: !t.done } : t);
+    setPlannerTasks(updated);
+    localStorage.setItem('smartstudy_planner_tasks', JSON.stringify(updated));
+  };
+
+  const handleDeletePlannerTask = (id: string) => {
+    const updated = plannerTasks.filter(t => t.id !== id);
+    setPlannerTasks(updated);
+    localStorage.setItem('smartstudy_planner_tasks', JSON.stringify(updated));
+  };
+
   return (
     <div className="space-y-4 animate-fade-in py-1">
       {/* PWA App Install Banner Card */}
       <PWAInstallButton variant="card" />
 
-      {/* ---------------- 1. CALCULATORS & STUDY TOOLS GRID (3x2) ---------------- */}
-      <div className="grid grid-cols-3 gap-3">
-        {/* 1. Scientific Calculator (Casio fx-570MS) - Exactly 1 Grid Box as requested */}
+      {/* ---------------- 1. ACADEMIC & STUDY TOOLS GRID (3x3) ---------------- */}
+      <div className="grid grid-cols-3 gap-2.5">
+        {/* 1. Board CQ (Requested Board CQ) */}
+        <button
+          onClick={() => setActiveModal('boardCQ')}
+          className="bg-gradient-to-br from-indigo-50/90 via-blue-50/40 to-white rounded-2xl p-2 sm:p-2.5 flex flex-col items-center justify-center text-center shadow-2xs border border-indigo-200/80 hover:border-indigo-400 hover:shadow-xs hover:scale-[1.02] active:scale-95 transition-all duration-75 cursor-pointer min-h-[84px] sm:min-h-[88px] group touch-manipulation"
+        >
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-indigo-100/90 border border-indigo-200/70 flex items-center justify-center mb-1 shadow-2xs group-hover:scale-105 transition-transform">
+            <FileQuestion className="w-5 h-5 text-indigo-700 stroke-[2.2]" />
+          </div>
+          <span className="text-[11px] sm:text-xs font-bold text-slate-800 leading-tight">
+            Board CQ
+          </span>
+          <span className="text-[8.5px] sm:text-[9px] font-medium text-indigo-600/90 mt-0.5 truncate max-w-full px-0.5 leading-none">
+            SSC & HSC CQ
+          </span>
+        </button>
+
+        {/* 2. Scientific Calculator (Casio fx-570MS) */}
         <button
           onClick={onOpenCalculator}
-          className="bg-white rounded-2xl p-3 flex flex-col items-center justify-center text-center shadow-xs border border-slate-100 hover:shadow-md hover:border-amber-300 hover:scale-[1.02] active:scale-95 transition-all cursor-pointer min-h-[105px] group"
+          className="bg-gradient-to-br from-amber-50/90 via-orange-50/40 to-white rounded-2xl p-2 sm:p-2.5 flex flex-col items-center justify-center text-center shadow-2xs border border-amber-200/80 hover:border-amber-400 hover:shadow-xs hover:scale-[1.02] active:scale-95 transition-all duration-75 cursor-pointer min-h-[84px] sm:min-h-[88px] group touch-manipulation"
         >
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-slate-900 via-slate-800 to-amber-900/60 p-0.5 shadow-sm flex items-center justify-center mb-1.5 group-hover:scale-105 transition-transform">
-            <div className="w-full h-full bg-slate-900 rounded-[10px] flex items-center justify-center border border-slate-700/60">
-              <Calculator className="w-6 h-6 text-amber-400 stroke-[2]" />
-            </div>
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-amber-100/90 border border-amber-200/70 flex items-center justify-center mb-1 shadow-2xs group-hover:scale-105 transition-transform">
+            <Calculator className="w-5 h-5 text-amber-700 stroke-[2.2]" />
           </div>
-          <span className="text-xs font-bold text-slate-800 leading-tight">
+          <span className="text-[11px] sm:text-xs font-bold text-slate-800 leading-tight">
             Calculator
           </span>
-          <span className="text-[9px] font-bold text-amber-600 mt-0.5">
+          <span className="text-[8.5px] sm:text-[9px] font-bold text-amber-600 mt-0.5 truncate max-w-full px-0.5 leading-none">
             fx-570MS
           </span>
         </button>
 
-        {/* 2. Unit Converter */}
+        {/* 3. Unit Converter */}
         <button
           onClick={() => setActiveModal('converter')}
-          className="bg-white rounded-2xl p-3 flex flex-col items-center justify-center text-center shadow-xs border border-slate-100 hover:shadow-md hover:border-teal-300 hover:scale-[1.02] active:scale-95 transition-all cursor-pointer min-h-[105px] group"
+          className="bg-gradient-to-br from-teal-50/90 via-emerald-50/40 to-white rounded-2xl p-2 sm:p-2.5 flex flex-col items-center justify-center text-center shadow-2xs border border-teal-200/80 hover:border-teal-400 hover:shadow-xs hover:scale-[1.02] active:scale-95 transition-all duration-75 cursor-pointer min-h-[84px] sm:min-h-[88px] group touch-manipulation"
         >
-          <div className="w-12 h-12 rounded-xl bg-teal-50 border border-teal-100 flex items-center justify-center mb-1.5 shadow-2xs group-hover:scale-105 transition-transform">
-            <ArrowRightLeft className="w-6 h-6 text-teal-600 stroke-[2.2]" />
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-teal-100/90 border border-teal-200/70 flex items-center justify-center mb-1 shadow-2xs group-hover:scale-105 transition-transform">
+            <ArrowRightLeft className="w-5 h-5 text-teal-700 stroke-[2.2]" />
           </div>
-          <span className="text-xs font-bold text-slate-800 leading-tight">
+          <span className="text-[11px] sm:text-xs font-bold text-slate-800 leading-tight">
             Converter
           </span>
-          <span className="text-[9px] text-slate-400 mt-0.5">ইউনিট</span>
+          <span className="text-[8.5px] sm:text-[9px] font-medium text-teal-600/90 mt-0.5 truncate max-w-full px-0.5 leading-none">
+            Unit Converter
+          </span>
         </button>
 
-        {/* 3. Age Calculator */}
+        {/* 4. Age Calculator */}
         <button
           onClick={() => setActiveModal('ageCalc')}
-          className="bg-white rounded-2xl p-3 flex flex-col items-center justify-center text-center shadow-xs border border-slate-100 hover:shadow-md hover:border-orange-300 hover:scale-[1.02] active:scale-95 transition-all cursor-pointer min-h-[105px] group"
+          className="bg-gradient-to-br from-orange-50/90 via-amber-50/40 to-white rounded-2xl p-2 sm:p-2.5 flex flex-col items-center justify-center text-center shadow-2xs border border-orange-200/80 hover:border-orange-400 hover:shadow-xs hover:scale-[1.02] active:scale-95 transition-all duration-75 cursor-pointer min-h-[84px] sm:min-h-[88px] group touch-manipulation"
         >
-          <div className="w-12 h-12 rounded-xl bg-orange-50 border border-orange-100 flex items-center justify-center mb-1.5 shadow-2xs group-hover:scale-105 transition-transform relative">
-            <Calendar className="w-6 h-6 text-orange-600 stroke-[2.2]" />
-            <span className="absolute bottom-2 text-[8px] font-black text-orange-800 leading-none">25</span>
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-orange-100/90 border border-orange-200/70 flex items-center justify-center mb-1 shadow-2xs group-hover:scale-105 transition-transform relative">
+            <Calendar className="w-5 h-5 text-orange-700 stroke-[2.2]" />
+            <span className="absolute bottom-1.5 text-[7px] font-black text-orange-900 leading-none">25</span>
           </div>
-          <span className="text-xs font-bold text-slate-800 leading-tight">
+          <span className="text-[11px] sm:text-xs font-bold text-slate-800 leading-tight">
             Age Calc
           </span>
-          <span className="text-[9px] text-slate-400 mt-0.5">বয়স হিসাব</span>
+          <span className="text-[8.5px] sm:text-[9px] font-medium text-orange-600/90 mt-0.5 truncate max-w-full px-0.5 leading-none">
+            Age & Birth Date
+          </span>
         </button>
 
-        {/* 4. Formulas */}
+        {/* 5. Formulas */}
         <button
           onClick={() => setActiveModal('formulas')}
-          className="bg-white rounded-2xl p-3 flex flex-col items-center justify-center text-center shadow-xs border border-slate-100 hover:shadow-md hover:border-purple-300 hover:scale-[1.02] active:scale-95 transition-all cursor-pointer min-h-[105px] group"
+          className="bg-gradient-to-br from-purple-50/90 via-fuchsia-50/40 to-white rounded-2xl p-2 sm:p-2.5 flex flex-col items-center justify-center text-center shadow-2xs border border-purple-200/80 hover:border-purple-400 hover:shadow-xs hover:scale-[1.02] active:scale-95 transition-all duration-75 cursor-pointer min-h-[84px] sm:min-h-[88px] group touch-manipulation"
         >
-          <div className="w-12 h-12 rounded-xl bg-purple-50 border border-purple-100 flex items-center justify-center mb-1.5 shadow-2xs group-hover:scale-105 transition-transform">
-            <FlaskConical className="w-6 h-6 text-purple-600 stroke-[2.2]" />
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-purple-100/90 border border-purple-200/70 flex items-center justify-center mb-1 shadow-2xs group-hover:scale-105 transition-transform">
+            <FlaskConical className="w-5 h-5 text-purple-700 stroke-[2.2]" />
           </div>
-          <span className="text-xs font-bold text-slate-800 leading-tight">
+          <span className="text-[11px] sm:text-xs font-bold text-slate-800 leading-tight">
             Formulas
           </span>
-          <span className="text-[9px] text-slate-400 mt-0.5">সূত্রাবলী</span>
+          <span className="text-[8.5px] sm:text-[9px] font-medium text-purple-600/90 mt-0.5 truncate max-w-full px-0.5 leading-none">
+            Math & Physics
+          </span>
         </button>
 
-        {/* 5. GPA Calculator */}
+        {/* 6. GPA Calculator */}
         <button
           onClick={() => setActiveModal('gpaCalc')}
-          className="bg-white rounded-2xl p-3 flex flex-col items-center justify-center text-center shadow-xs border border-slate-100 hover:shadow-md hover:border-amber-300 hover:scale-[1.02] active:scale-95 transition-all cursor-pointer min-h-[105px] group"
+          className="bg-gradient-to-br from-yellow-50/90 via-amber-50/40 to-white rounded-2xl p-2 sm:p-2.5 flex flex-col items-center justify-center text-center shadow-2xs border border-amber-200/80 hover:border-amber-400 hover:shadow-xs hover:scale-[1.02] active:scale-95 transition-all duration-75 cursor-pointer min-h-[84px] sm:min-h-[88px] group touch-manipulation"
         >
-          <div className="w-12 h-12 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center mb-1.5 shadow-2xs group-hover:scale-105 transition-transform">
-            <span className="font-mono text-sm font-black text-amber-700">GPA</span>
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-yellow-100/90 border border-amber-200/70 flex items-center justify-center mb-1 shadow-2xs group-hover:scale-105 transition-transform">
+            <span className="font-mono text-xs font-black text-amber-800">GPA</span>
           </div>
-          <span className="text-xs font-bold text-slate-800 leading-tight">
+          <span className="text-[11px] sm:text-xs font-bold text-slate-800 leading-tight">
             GPA Calculator
           </span>
-          <span className="text-[9px] text-slate-400 mt-0.5">জিপিএ</span>
+          <span className="text-[8.5px] sm:text-[9px] font-medium text-amber-700/90 mt-0.5 truncate max-w-full px-0.5 leading-none">
+            Grade Point
+          </span>
         </button>
 
-        {/* 6. Number Converter */}
+        {/* 7. Number Converter */}
         <button
           onClick={() => setActiveModal('numberConverter')}
-          className="bg-white rounded-2xl p-3 flex flex-col items-center justify-center text-center shadow-xs border border-slate-100 hover:shadow-md hover:border-blue-300 hover:scale-[1.02] active:scale-95 transition-all cursor-pointer min-h-[105px] group"
+          className="bg-gradient-to-br from-sky-50/90 via-cyan-50/40 to-white rounded-2xl p-2 sm:p-2.5 flex flex-col items-center justify-center text-center shadow-2xs border border-sky-200/80 hover:border-sky-400 hover:shadow-xs hover:scale-[1.02] active:scale-95 transition-all duration-75 cursor-pointer min-h-[84px] sm:min-h-[88px] group touch-manipulation"
         >
-          <div className="w-12 h-12 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center mb-1.5 shadow-2xs group-hover:scale-105 transition-transform">
-            <Binary className="w-6 h-6 text-blue-600 stroke-[2.2]" />
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-sky-100/90 border border-sky-200/70 flex items-center justify-center mb-1 shadow-2xs group-hover:scale-105 transition-transform">
+            <Binary className="w-5 h-5 text-sky-700 stroke-[2.2]" />
           </div>
-          <span className="text-xs font-bold text-slate-800 leading-tight">
-            Number Converter
+          <span className="text-[11px] sm:text-xs font-bold text-slate-800 leading-tight">
+            Number Base
           </span>
-          <span className="text-[9px] text-slate-400 mt-0.5">বাইনারি/হেক্স</span>
+          <span className="text-[8.5px] sm:text-[9px] font-medium text-sky-600/90 mt-0.5 truncate max-w-full px-0.5 leading-none">
+            Binary & Hex
+          </span>
+        </button>
+
+        {/* 8. Study Planner (New addition in menu) */}
+        <button
+          onClick={() => setActiveModal('studyPlanner')}
+          className="bg-gradient-to-br from-violet-50/90 via-indigo-50/40 to-white rounded-2xl p-2 sm:p-2.5 flex flex-col items-center justify-center text-center shadow-2xs border border-violet-200/80 hover:border-violet-400 hover:shadow-xs hover:scale-[1.02] active:scale-95 transition-all duration-75 cursor-pointer min-h-[84px] sm:min-h-[88px] group touch-manipulation"
+        >
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-violet-100/90 border border-violet-200/70 flex items-center justify-center mb-1 shadow-2xs group-hover:scale-105 transition-transform">
+            <Target className="w-5 h-5 text-violet-700 stroke-[2.2]" />
+          </div>
+          <span className="text-[11px] sm:text-xs font-bold text-slate-800 leading-tight">
+            Study Planner
+          </span>
+          <span className="text-[8.5px] sm:text-[9px] font-medium text-violet-600/90 mt-0.5 truncate max-w-full px-0.5 leading-none">
+            Target & Hours
+          </span>
+        </button>
+
+        {/* 9. Study Notebook */}
+        <button
+          onClick={() => setActiveModal('notebook')}
+          className="bg-gradient-to-br from-rose-50/90 via-pink-50/40 to-white rounded-2xl p-2 sm:p-2.5 flex flex-col items-center justify-center text-center shadow-2xs border border-rose-200/80 hover:border-rose-400 hover:shadow-xs hover:scale-[1.02] active:scale-95 transition-all duration-75 cursor-pointer min-h-[84px] sm:min-h-[88px] group touch-manipulation"
+        >
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-rose-100/90 border border-rose-200/70 flex items-center justify-center mb-1 shadow-2xs group-hover:scale-105 transition-transform">
+            <BookOpen className="w-5 h-5 text-rose-700 stroke-[2.2]" />
+          </div>
+          <span className="text-[11px] sm:text-xs font-bold text-slate-800 leading-tight">
+            Study Notes
+          </span>
+          <span className="text-[8.5px] sm:text-[9px] font-medium text-rose-600/90 mt-0.5 truncate max-w-full px-0.5 leading-none">
+            Quick Notes
+          </span>
         </button>
       </div>
 
       {/* লাল দাগ ব্যানার অ্যাড (টুলস গ্রিডের মাঝে) */}
       <BannerAd type="red" config={adsConfig?.redBanner} />
 
-      {/* ---------------- 2. SECTION TITLE: ব্যক্তিগত (Personal) ---------------- */}
-      <div className="flex items-center gap-2 pt-2 px-1">
+      {/* ---------------- 2. SECTION TITLE: Personal & Productivity (সব ইংরেজিতে) ---------------- */}
+      <div className="flex items-center gap-2 pt-1 px-1">
         <div className="w-5 h-5 rounded-md bg-slate-100 flex items-center justify-center text-slate-600">
           <Layers className="w-3.5 h-3.5" />
         </div>
-        <h3 className="text-sm font-extrabold text-slate-800">
-          ব্যক্তিগত (Personal)
+        <h3 className="text-xs sm:text-sm font-extrabold text-slate-800 tracking-tight">
+          Personal & Productivity
         </h3>
       </div>
 
       {/* ---------------- 3. PERSONAL TOOLS GRID (3x2) ---------------- */}
-      <div className="grid grid-cols-3 gap-3">
-        {/* 7. Notebook */}
-        <button
-          onClick={() => setActiveModal('notebook')}
-          className="bg-white rounded-2xl p-3 flex flex-col items-center justify-center text-center shadow-xs border border-slate-100 hover:shadow-md hover:border-amber-300 hover:scale-[1.02] active:scale-95 transition-all cursor-pointer min-h-[105px] group"
-        >
-          <div className="w-12 h-12 rounded-xl bg-amber-50 border border-amber-100 flex items-center justify-center mb-1.5 shadow-2xs group-hover:scale-105 transition-transform">
-            <BookOpen className="w-6 h-6 text-amber-700 stroke-[2.2]" />
-          </div>
-          <span className="text-xs font-bold text-slate-800 leading-tight">
-            Notebook
-          </span>
-          <span className="text-[9px] text-slate-400 mt-0.5">নোটবুক</span>
-        </button>
-
-        {/* 8. To-Do List */}
+      <div className="grid grid-cols-3 gap-2.5">
+        {/* 10. To-Do List */}
         <button
           onClick={() => setActiveModal('todoList')}
-          className="bg-white rounded-2xl p-3 flex flex-col items-center justify-center text-center shadow-xs border border-slate-100 hover:shadow-md hover:border-cyan-300 hover:scale-[1.02] active:scale-95 transition-all cursor-pointer min-h-[105px] group"
+          className="bg-gradient-to-br from-cyan-50/90 via-sky-50/40 to-white rounded-2xl p-2 sm:p-2.5 flex flex-col items-center justify-center text-center shadow-2xs border border-cyan-200/80 hover:border-cyan-400 hover:shadow-xs hover:scale-[1.02] active:scale-95 transition-all duration-75 cursor-pointer min-h-[84px] sm:min-h-[88px] group touch-manipulation"
         >
-          <div className="w-12 h-12 rounded-xl bg-cyan-50 border border-cyan-100 flex items-center justify-center mb-1.5 shadow-2xs group-hover:scale-105 transition-transform">
-            <ListTodo className="w-6 h-6 text-cyan-700 stroke-[2.2]" />
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-cyan-100/90 border border-cyan-200/70 flex items-center justify-center mb-1 shadow-2xs group-hover:scale-105 transition-transform">
+            <ListTodo className="w-5 h-5 text-cyan-700 stroke-[2.2]" />
           </div>
-          <span className="text-xs font-bold text-slate-800 leading-tight">
+          <span className="text-[11px] sm:text-xs font-bold text-slate-800 leading-tight">
             To-Do List
           </span>
-          <span className="text-[9px] text-slate-400 mt-0.5">কাজের তালিকা</span>
+          <span className="text-[8.5px] sm:text-[9px] font-medium text-cyan-600/90 mt-0.5 truncate max-w-full px-0.5 leading-none">
+            Daily Tasks
+          </span>
         </button>
 
-        {/* 9. Reminder */}
+        {/* 11. Reminder */}
         <button
           onClick={() => setActiveModal('reminder')}
-          className="bg-white rounded-2xl p-3 flex flex-col items-center justify-center text-center shadow-xs border border-slate-100 hover:shadow-md hover:border-emerald-300 hover:scale-[1.02] active:scale-95 transition-all cursor-pointer min-h-[105px] group"
+          className="bg-gradient-to-br from-emerald-50/90 via-teal-50/40 to-white rounded-2xl p-2 sm:p-2.5 flex flex-col items-center justify-center text-center shadow-2xs border border-emerald-200/80 hover:border-emerald-400 hover:shadow-xs hover:scale-[1.02] active:scale-95 transition-all duration-75 cursor-pointer min-h-[84px] sm:min-h-[88px] group touch-manipulation"
         >
-          <div className="w-12 h-12 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center mb-1.5 shadow-2xs group-hover:scale-105 transition-transform">
-            <Bell className="w-6 h-6 text-emerald-600 stroke-[2.2]" />
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-emerald-100/90 border border-emerald-200/70 flex items-center justify-center mb-1 shadow-2xs group-hover:scale-105 transition-transform">
+            <Bell className="w-5 h-5 text-emerald-700 stroke-[2.2]" />
           </div>
-          <span className="text-xs font-bold text-slate-800 leading-tight">
+          <span className="text-[11px] sm:text-xs font-bold text-slate-800 leading-tight">
             Reminder
           </span>
-          <span className="text-[9px] text-slate-400 mt-0.5">রিমাইন্ডার</span>
+          <span className="text-[8.5px] sm:text-[9px] font-medium text-emerald-600/90 mt-0.5 truncate max-w-full px-0.5 leading-none">
+            Exam & Alerts
+          </span>
         </button>
 
-        {/* 10. Routine */}
+        {/* 12. Class Routine */}
         <button
           onClick={() => setActiveModal('routine')}
-          className="bg-white rounded-2xl p-3 flex flex-col items-center justify-center text-center shadow-xs border border-slate-100 hover:shadow-md hover:border-indigo-300 hover:scale-[1.02] active:scale-95 transition-all cursor-pointer min-h-[105px] group"
+          className="bg-gradient-to-br from-indigo-50/90 via-blue-50/40 to-white rounded-2xl p-2 sm:p-2.5 flex flex-col items-center justify-center text-center shadow-2xs border border-indigo-200/80 hover:border-indigo-400 hover:shadow-xs hover:scale-[1.02] active:scale-95 transition-all duration-75 cursor-pointer min-h-[84px] sm:min-h-[88px] group touch-manipulation"
         >
-          <div className="w-12 h-12 rounded-xl bg-indigo-50 border border-indigo-100 flex items-center justify-center mb-1.5 shadow-2xs group-hover:scale-105 transition-transform">
-            <Clock className="w-6 h-6 text-indigo-600 stroke-[2.2]" />
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-indigo-100/90 border border-indigo-200/70 flex items-center justify-center mb-1 shadow-2xs group-hover:scale-105 transition-transform">
+            <Clock className="w-5 h-5 text-indigo-700 stroke-[2.2]" />
           </div>
-          <span className="text-xs font-bold text-slate-800 leading-tight">
+          <span className="text-[11px] sm:text-xs font-bold text-slate-800 leading-tight">
             Routine
           </span>
-          <span className="text-[9px] text-slate-400 mt-0.5">ক্লাস রুটিন</span>
+          <span className="text-[8.5px] sm:text-[9px] font-medium text-indigo-600/90 mt-0.5 truncate max-w-full px-0.5 leading-none">
+            Weekly Schedule
+          </span>
         </button>
 
-        {/* 11. Pomodoro */}
+        {/* 13. Pomodoro Focus Timer */}
         <button
           onClick={() => setActiveModal('pomodoro')}
-          className="bg-white rounded-2xl p-3 flex flex-col items-center justify-center text-center shadow-xs border border-slate-100 hover:shadow-md hover:border-rose-300 hover:scale-[1.02] active:scale-95 transition-all cursor-pointer min-h-[105px] group"
+          className="bg-gradient-to-br from-rose-50/90 via-red-50/40 to-white rounded-2xl p-2 sm:p-2.5 flex flex-col items-center justify-center text-center shadow-2xs border border-rose-200/80 hover:border-rose-400 hover:shadow-xs hover:scale-[1.02] active:scale-95 transition-all duration-75 cursor-pointer min-h-[84px] sm:min-h-[88px] group touch-manipulation"
         >
-          <div className="w-12 h-12 rounded-xl bg-rose-50 border border-rose-100 flex items-center justify-center mb-1.5 shadow-2xs group-hover:scale-105 transition-transform">
-            <span className="text-rose-600 font-mono font-black text-xs">25m</span>
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-rose-100/90 border border-rose-200/70 flex items-center justify-center mb-1 shadow-2xs group-hover:scale-105 transition-transform">
+            <span className="text-rose-700 font-mono font-black text-xs">25m</span>
           </div>
-          <span className="text-xs font-bold text-slate-800 leading-tight">
+          <span className="text-[11px] sm:text-xs font-bold text-slate-800 leading-tight">
             Pomodoro
           </span>
-          <span className="text-[9px] text-slate-400 mt-0.5">টাইমার</span>
+          <span className="text-[8.5px] sm:text-[9px] font-medium text-rose-600/90 mt-0.5 truncate max-w-full px-0.5 leading-none">
+            Focus Timer
+          </span>
         </button>
 
-        {/* 12. Checklist */}
+        {/* 14. Exam Checklist */}
         <button
           onClick={() => setActiveModal('checklist')}
-          className="bg-white rounded-2xl p-3 flex flex-col items-center justify-center text-center shadow-xs border border-slate-100 hover:shadow-md hover:border-lime-300 hover:scale-[1.02] active:scale-95 transition-all cursor-pointer min-h-[105px] group"
+          className="bg-gradient-to-br from-lime-50/90 via-emerald-50/40 to-white rounded-2xl p-2 sm:p-2.5 flex flex-col items-center justify-center text-center shadow-2xs border border-lime-200/80 hover:border-lime-400 hover:shadow-xs hover:scale-[1.02] active:scale-95 transition-all duration-75 cursor-pointer min-h-[84px] sm:min-h-[88px] group touch-manipulation"
         >
-          <div className="w-12 h-12 rounded-xl bg-lime-50 border border-lime-100 flex items-center justify-center mb-1.5 shadow-2xs group-hover:scale-105 transition-transform">
-            <CheckSquare className="w-6 h-6 text-lime-600 stroke-[2.2]" />
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-lime-100/90 border border-lime-200/70 flex items-center justify-center mb-1 shadow-2xs group-hover:scale-105 transition-transform">
+            <CheckSquare className="w-5 h-5 text-lime-700 stroke-[2.2]" />
           </div>
-          <span className="text-xs font-bold text-slate-800 leading-tight">
+          <span className="text-[11px] sm:text-xs font-bold text-slate-800 leading-tight">
             Checklist
           </span>
-          <span className="text-[9px] text-slate-400 mt-0.5">পরীক্ষা চেকলিস্ট</span>
+          <span className="text-[8.5px] sm:text-[9px] font-medium text-lime-700/90 mt-0.5 truncate max-w-full px-0.5 leading-none">
+            Exam Kit Check
+          </span>
         </button>
 
-        {/* 13. Admin Panel - Moved from top header into Profile as requested */}
+        {/* 15. Admin Panel */}
         <button
           onClick={onOpenAdmin}
-          className="bg-white rounded-2xl p-3 flex flex-col items-center justify-center text-center shadow-xs border border-amber-200 hover:shadow-md hover:border-amber-400 hover:scale-[1.02] active:scale-95 transition-all cursor-pointer min-h-[105px] group bg-gradient-to-b from-amber-50/40 to-white"
+          className="bg-gradient-to-br from-amber-50/90 via-orange-50/40 to-white rounded-2xl p-2 sm:p-2.5 flex flex-col items-center justify-center text-center shadow-2xs border border-amber-300 hover:border-amber-400 hover:shadow-xs hover:scale-[1.02] active:scale-95 transition-all duration-75 cursor-pointer min-h-[84px] sm:min-h-[88px] group touch-manipulation"
         >
-          <div className="w-12 h-12 rounded-xl bg-amber-500 text-white flex items-center justify-center mb-1.5 shadow-sm shadow-amber-500/20 group-hover:scale-105 transition-transform">
-            <Lock className="w-6 h-6 stroke-[2.2]" />
+          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-amber-500 text-white flex items-center justify-center mb-1 shadow-xs shadow-amber-500/20 group-hover:scale-105 transition-transform">
+            <Lock className="w-5 h-5 stroke-[2.2]" />
           </div>
-          <span className="text-xs font-bold text-slate-800 leading-tight">
-            এডমিন প্যানেল
+          <span className="text-[11px] sm:text-xs font-bold text-slate-800 leading-tight">
+            Admin Panel
           </span>
-          <span className="text-[9px] font-bold text-amber-700 mt-0.5">সুরক্ষিত প্রবেশ</span>
+          <span className="text-[8.5px] sm:text-[9px] font-bold text-amber-700 mt-0.5 truncate max-w-full px-0.5 leading-none">
+            Secured Access
+          </span>
         </button>
       </div>
 
@@ -451,15 +566,291 @@ export const StudentToolsProfile: React.FC<StudentToolsProfileProps> = ({
 
       {/* ---------------- INTERACTIVE MODALS FOR TOOLS ---------------- */}
       {activeModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-fade-in">
-          <div className="w-full max-w-sm bg-white rounded-3xl p-5 shadow-2xl border border-slate-100 max-h-[85vh] overflow-y-auto relative">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-xs animate-fade-in">
+          <div className={`w-full ${activeModal === 'boardCQ' ? 'max-w-md' : 'max-w-sm'} bg-white rounded-3xl p-4 sm:p-5 shadow-2xl border border-slate-100 max-h-[88vh] overflow-y-auto relative`}>
             {/* Close Button */}
             <button
               onClick={() => setActiveModal(null)}
-              className="absolute top-4 right-4 p-1.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors"
+              className="absolute top-4 right-4 p-1.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors z-10"
             >
               <X className="w-4 h-4" />
             </button>
+
+            {/* 1. BOARD CQ (সৃজনশীল প্রশ্ন ব্যাংক) MODAL */}
+            {activeModal === 'boardCQ' && (
+              <div className="space-y-3.5">
+                <div className="text-center pt-1">
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-bold mb-1">
+                    <GraduationCap className="w-3.5 h-3.5" />
+                    <span>Board CQ Question Bank</span>
+                  </div>
+                  <h3 className="text-base font-extrabold text-slate-900">বোর্ড সৃজনশীল প্রশ্ন (CQ)</h3>
+                  <p className="text-xs text-slate-500">SSC ও HSC বিগত বছরের বোর্ড পরীক্ষা প্রশ্ন ও মডেল সমাধান</p>
+                </div>
+
+                {/* Level Filter Pills: ALL / SSC / HSC */}
+                <div className="flex gap-1.5 justify-center">
+                  {(['ALL', 'SSC', 'HSC'] as const).map(lvl => (
+                    <button
+                      key={lvl}
+                      onClick={() => setCqLevelFilter(lvl)}
+                      className={`px-3 py-1 text-xs font-bold rounded-xl transition-all cursor-pointer ${
+                        cqLevelFilter === lvl
+                          ? 'bg-indigo-600 text-white shadow-xs'
+                          : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                      }`}
+                    >
+                      {lvl === 'ALL' ? 'সকল শ্রেণি' : lvl === 'SSC' ? 'SSC (৯ম-১০ম)' : 'HSC (১১শ-১২শ)'}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Subject Filter Pills */}
+                <div className="flex gap-1 overflow-x-auto pb-1 text-[11px] font-bold no-scrollbar">
+                  {['ALL', 'ICT', 'বাংলা', 'গণিত', 'পদার্থ', 'রসায়ন'].map(sub => (
+                    <button
+                      key={sub}
+                      onClick={() => setCqSubjectFilter(sub)}
+                      className={`px-2.5 py-1 rounded-lg shrink-0 transition-all cursor-pointer ${
+                        cqSubjectFilter === sub
+                          ? 'bg-indigo-100 text-indigo-800 border border-indigo-300'
+                          : 'bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100'
+                      }`}
+                    >
+                      {sub === 'ALL' ? 'সকল বিষয়' : sub}
+                    </button>
+                  ))}
+                </div>
+
+                {/* CQ List */}
+                <div className="space-y-3 max-h-[62vh] overflow-y-auto pr-1">
+                  {BOARD_CQ_DATA
+                    .filter(item => cqLevelFilter === 'ALL' || item.level === cqLevelFilter)
+                    .filter(item => {
+                      if (cqSubjectFilter === 'ALL') return true;
+                      return item.subject.toLowerCase().includes(cqSubjectFilter.toLowerCase());
+                    })
+                    .map(item => {
+                      const isExpanded = cqExpandedId === item.id;
+                      return (
+                        <div
+                          key={item.id}
+                          className="bg-white rounded-2xl border border-indigo-100 p-3 shadow-2xs space-y-2 transition-all hover:border-indigo-300"
+                        >
+                          {/* Header Badge */}
+                          <div className="flex items-center justify-between text-[11px] gap-2">
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <span className="px-2 py-0.5 rounded-md bg-indigo-100 font-bold text-indigo-800 text-[10px]">
+                                {item.level}
+                              </span>
+                              <span className="font-bold text-slate-800">{item.subject}</span>
+                              <span className="text-slate-400">•</span>
+                              <span className="text-amber-700 font-semibold">{item.board} {item.year}</span>
+                            </div>
+                            <button
+                              onClick={() => handleCopyCQ(item)}
+                              className="text-slate-400 hover:text-indigo-600 flex items-center gap-1 shrink-0 p-1 rounded-md hover:bg-indigo-50 cursor-pointer"
+                              title="কপি করুন"
+                            >
+                              {copiedCqId === item.id ? (
+                                <Check className="w-3.5 h-3.5 text-emerald-600" />
+                              ) : (
+                                <Copy className="w-3.5 h-3.5" />
+                              )}
+                            </button>
+                          </div>
+
+                          <p className="text-[11px] font-bold text-indigo-900">{item.chapter}</p>
+
+                          {/* Stem / উদ্দীপক */}
+                          <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 text-xs text-slate-800 leading-relaxed font-serif">
+                            <span className="font-sans font-bold text-slate-900 block mb-1">উদ্দীপক:</span>
+                            {item.stem}
+                          </div>
+
+                          {/* Questions ক, খ, গ, ঘ */}
+                          <div className="space-y-1 text-xs">
+                            <div className="p-1.5 rounded-lg bg-indigo-50/50 text-slate-800">
+                              <span className="font-bold text-indigo-700 mr-1.5">ক.</span> {item.questions.a} <span className="text-[10px] text-slate-400 font-mono">(১)</span>
+                            </div>
+                            <div className="p-1.5 rounded-lg bg-indigo-50/50 text-slate-800">
+                              <span className="font-bold text-indigo-700 mr-1.5">খ.</span> {item.questions.b} <span className="text-[10px] text-slate-400 font-mono">(২)</span>
+                            </div>
+                            <div className="p-1.5 rounded-lg bg-indigo-50/50 text-slate-800">
+                              <span className="font-bold text-indigo-700 mr-1.5">গ.</span> {item.questions.c} <span className="text-[10px] text-slate-400 font-mono">(৩)</span>
+                            </div>
+                            <div className="p-1.5 rounded-lg bg-indigo-50/50 text-slate-800">
+                              <span className="font-bold text-indigo-700 mr-1.5">ঘ.</span> {item.questions.d} <span className="text-[10px] text-slate-400 font-mono">(৪)</span>
+                            </div>
+                          </div>
+
+                          {/* Toggle Solution */}
+                          <button
+                            onClick={() => setCqExpandedId(isExpanded ? null : item.id)}
+                            className="w-full py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                          >
+                            <span>{isExpanded ? 'সমাধান লুকিয়ে রাখুন' : 'উত্তর ও সমাধান দেখুন'}</span>
+                            <ChevronRight className={`w-3.5 h-3.5 transition-transform ${isExpanded ? 'rotate-90' : ''}`} />
+                          </button>
+
+                          {/* Solution Box */}
+                          {isExpanded && (
+                            <div className="p-3 rounded-xl bg-emerald-50/70 border border-emerald-200 text-xs space-y-2.5 animate-fade-in">
+                              <span className="font-bold text-emerald-900 block border-b border-emerald-200 pb-1">
+                                ✓ মডেল সমাধান ও ব্যাখ্যা:
+                              </span>
+                              <div>
+                                <span className="font-bold text-emerald-800">ক-এর উত্তর:</span>
+                                <p className="text-slate-800 mt-0.5 whitespace-pre-wrap">{item.answers.a}</p>
+                              </div>
+                              <div>
+                                <span className="font-bold text-emerald-800">খ-এর উত্তর:</span>
+                                <p className="text-slate-800 mt-0.5 whitespace-pre-wrap">{item.answers.b}</p>
+                              </div>
+                              <div>
+                                <span className="font-bold text-emerald-800">গ-এর উত্তর:</span>
+                                <div className="text-slate-800 mt-0.5 whitespace-pre-wrap font-sans bg-white/80 p-2 rounded-lg border border-emerald-100">
+                                  {item.answers.c}
+                                </div>
+                              </div>
+                              <div>
+                                <span className="font-bold text-emerald-800">ঘ-এর উত্তর:</span>
+                                <div className="text-slate-800 mt-0.5 whitespace-pre-wrap font-sans bg-white/80 p-2 rounded-lg border border-emerald-100">
+                                  {item.answers.d}
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                </div>
+              </div>
+            )}
+
+            {/* 2. STUDY PLANNER MODAL */}
+            {activeModal === 'studyPlanner' && (
+              <div className="space-y-4">
+                <div className="text-center pt-1">
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-violet-50 border border-violet-200 text-violet-700 text-xs font-bold mb-1">
+                    <Target className="w-3.5 h-3.5" />
+                    <span>Daily Study Planner</span>
+                  </div>
+                  <h3 className="text-base font-extrabold text-slate-900">দৈনিক স্টাডি প্ল্যানার</h3>
+                  <p className="text-xs text-slate-500">প্রতিদিনের পড়ার টার্গেট ও সম্পন্নতার ট্র্যাকিং</p>
+                </div>
+
+                {/* Daily Target Hours */}
+                <div className="p-3 bg-violet-50/70 border border-violet-200 rounded-2xl flex items-center justify-between">
+                  <div>
+                    <span className="text-xs font-bold text-violet-900 block">আজকের পড়ার লক্ষ্যমাত্রা</span>
+                    <span className="text-[10px] text-violet-700">ডেইলি স্টাডি টাইম</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <input
+                      type="number"
+                      min="1"
+                      max="16"
+                      value={targetHours}
+                      onChange={e => {
+                        setTargetHours(e.target.value);
+                        localStorage.setItem('smartstudy_target_hours', e.target.value);
+                      }}
+                      className="w-14 p-1.5 text-center text-sm font-black font-mono bg-white border border-violet-300 rounded-xl"
+                    />
+                    <span className="text-xs font-bold text-violet-900">ঘণ্টা</span>
+                  </div>
+                </div>
+
+                {/* Add Planner Goal */}
+                <div className="space-y-2">
+                  <div className="flex gap-1.5">
+                    <select
+                      value={newPlannerSubject}
+                      onChange={e => setNewPlannerSubject(e.target.value)}
+                      className="p-2 rounded-xl border border-slate-200 bg-white text-xs font-bold text-violet-800"
+                    >
+                      <option value="Board CQ">Board CQ</option>
+                      <option value="ICT">ICT</option>
+                      <option value="Math">Math</option>
+                      <option value="Bangla">Bangla</option>
+                      <option value="Physics">Physics</option>
+                      <option value="Chemistry">Chemistry</option>
+                      <option value="English">English</option>
+                    </select>
+                    <input
+                      type="text"
+                      value={newPlannerTarget}
+                      onChange={e => setNewPlannerTarget(e.target.value)}
+                      placeholder="আজ কী পড়বেন লিখুন..."
+                      className="flex-1 p-2 rounded-xl border border-slate-200 text-xs"
+                      onKeyDown={e => e.key === 'Enter' && handleAddPlannerTask()}
+                    />
+                    <button
+                      onClick={handleAddPlannerTask}
+                      className="px-3 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-xl text-xs font-bold shrink-0 cursor-pointer"
+                    >
+                      <Plus className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Planner List */}
+                <div className="space-y-1.5 max-h-56 overflow-y-auto pr-1">
+                  {plannerTasks.map(t => (
+                    <div
+                      key={t.id}
+                      className={`p-2.5 rounded-xl border flex items-center justify-between gap-2 text-xs transition-all ${
+                        t.done ? 'bg-slate-50 border-slate-200 text-slate-400' : 'bg-white border-violet-100 text-slate-800'
+                      }`}
+                    >
+                      <div
+                        onClick={() => handleTogglePlannerTask(t.id)}
+                        className="flex items-center gap-2 flex-1 cursor-pointer"
+                      >
+                        <div className={`w-4 h-4 rounded-md border flex items-center justify-center shrink-0 ${
+                          t.done ? 'bg-violet-600 border-violet-600 text-white' : 'border-slate-300'
+                        }`}>
+                          {t.done && <Check className="w-3 h-3 stroke-[3]" />}
+                        </div>
+                        <div>
+                          <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded mr-1.5 ${
+                            t.done ? 'bg-slate-200 text-slate-500' : 'bg-violet-100 text-violet-800'
+                          }`}>
+                            {t.subject}
+                          </span>
+                          <span className={t.done ? 'line-through' : 'font-medium'}>{t.target}</span>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => handleDeletePlannerTask(t.id)}
+                        className="text-slate-300 hover:text-rose-600 p-1 shrink-0 cursor-pointer"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Progress Summary */}
+                <div className="p-3 bg-slate-50 border border-slate-200 rounded-2xl text-center">
+                  <div className="flex justify-between items-center text-xs mb-1">
+                    <span className="font-bold text-slate-700">আজকের অগ্রগতি (Progress)</span>
+                    <span className="font-bold text-violet-700">
+                      {plannerTasks.length > 0 ? Math.round((plannerTasks.filter(t => t.done).length / plannerTasks.length) * 100) : 0}%
+                    </span>
+                  </div>
+                  <div className="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+                    <div
+                      className="bg-gradient-to-r from-violet-500 to-indigo-600 h-full rounded-full transition-all duration-300"
+                      style={{
+                        width: `${plannerTasks.length > 0 ? Math.round((plannerTasks.filter(t => t.done).length / plannerTasks.length) * 100) : 0}%`
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* AGE CALC MODAL */}
             {activeModal === 'ageCalc' && (
