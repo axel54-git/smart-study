@@ -24,7 +24,8 @@ import {
   FileQuestion,
   Target,
   GraduationCap,
-  Copy
+  Copy,
+  Activity
 } from 'lucide-react';
 import { BannerAd } from './BannerAd';
 import { PWAInstallButton } from './PWAInstallButton';
@@ -319,21 +320,24 @@ export const StudentToolsProfile: React.FC<StudentToolsProfileProps> = ({
           </span>
         </button>
 
-        {/* 3. Unit Converter */}
-        <button
-          onClick={() => setActiveModal('converter')}
-          className="bg-gradient-to-br from-teal-50/90 via-emerald-50/40 to-white rounded-2xl p-2 sm:p-2.5 flex flex-col items-center justify-center text-center shadow-2xs border border-teal-200/80 hover:border-teal-400 hover:shadow-xs hover:scale-[1.02] active:scale-95 transition-all duration-75 cursor-pointer min-h-[84px] sm:min-h-[88px] group touch-manipulation"
+        {/* 3. BMI Calculator (External Direct Link) */}
+        <a
+          href="https://www.calculator.net/bmi-calculator.html"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="bg-gradient-to-br from-teal-50/90 via-emerald-50/40 to-white rounded-2xl p-2 sm:p-2.5 flex flex-col items-center justify-center text-center shadow-2xs border border-teal-200/80 hover:border-teal-400 hover:shadow-xs hover:scale-[1.02] active:scale-95 transition-all duration-75 cursor-pointer min-h-[84px] sm:min-h-[88px] group touch-manipulation no-underline"
+          title="BMI Calculator - calculator.net"
         >
           <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-teal-100/90 border border-teal-200/70 flex items-center justify-center mb-1 shadow-2xs group-hover:scale-105 transition-transform">
-            <ArrowRightLeft className="w-5 h-5 text-teal-700 stroke-[2.2]" />
+            <Activity className="w-5 h-5 text-teal-700 stroke-[2.2]" />
           </div>
           <span className="text-[11px] sm:text-xs font-bold text-slate-800 leading-tight">
-            Converter
+            BMI Calc
           </span>
           <span className="text-[8.5px] sm:text-[9px] font-medium text-teal-600/90 mt-0.5 truncate max-w-full px-0.5 leading-none">
-            Unit Converter
+            Body Mass Index
           </span>
-        </button>
+        </a>
 
         {/* 4. Age Calculator (External Direct Link) */}
         <a
