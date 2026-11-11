@@ -61,6 +61,22 @@ export const StudentToolsProfile: React.FC<StudentToolsProfileProps> = ({
 }) => {
   const [activeModal, setActiveModal] = useState<ActiveModal>(null);
 
+  // ---------------- SECURE EXTERNAL LINK OPENER ----------------
+  // Keeps link invisible from URL preview status bar, disables long-press inspection & prevents referrer leak
+  const openSecureExternalLink = (url: string) => {
+    try {
+      const a = document.createElement('a');
+      a.href = url;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer nofollow';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    } catch {
+      window.location.assign(url);
+    }
+  };
+
   // ---------------- AGE CALCULATOR STATE ----------------
   const [birthDate, setBirthDate] = useState('2007-01-01');
   const [ageResult, setAgeResult] = useState<{ years: number; months: number; days: number } | null>(null);
@@ -320,13 +336,11 @@ export const StudentToolsProfile: React.FC<StudentToolsProfileProps> = ({
           </span>
         </button>
 
-        {/* 3. BMI Calculator (External Direct Link) */}
-        <a
-          href="https://www.calculator.net/bmi-calculator.html"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="bg-gradient-to-br from-teal-50/90 via-emerald-50/40 to-white rounded-2xl p-2 sm:p-2.5 flex flex-col items-center justify-center text-center shadow-2xs border border-teal-200/80 hover:border-teal-400 hover:shadow-xs hover:scale-[1.02] active:scale-95 transition-all duration-75 cursor-pointer min-h-[84px] sm:min-h-[88px] group touch-manipulation no-underline"
-          title="BMI Calculator - calculator.net"
+        {/* 3. BMI Calculator (Secure External Link - Protected against URL inspection & status bar preview) */}
+        <button
+          onClick={() => openSecureExternalLink('https://www.calculator.net/bmi-calculator.html')}
+          onContextMenu={(e) => e.preventDefault()}
+          className="bg-gradient-to-br from-teal-50/90 via-emerald-50/40 to-white rounded-2xl p-2 sm:p-2.5 flex flex-col items-center justify-center text-center shadow-2xs border border-teal-200/80 hover:border-teal-400 hover:shadow-xs hover:scale-[1.02] active:scale-95 transition-all duration-75 cursor-pointer min-h-[84px] sm:min-h-[88px] group touch-manipulation select-none"
         >
           <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-teal-100/90 border border-teal-200/70 flex items-center justify-center mb-1 shadow-2xs group-hover:scale-105 transition-transform">
             <Activity className="w-5 h-5 text-teal-700 stroke-[2.2]" />
@@ -337,15 +351,13 @@ export const StudentToolsProfile: React.FC<StudentToolsProfileProps> = ({
           <span className="text-[8.5px] sm:text-[9px] font-medium text-teal-600/90 mt-0.5 truncate max-w-full px-0.5 leading-none">
             Body Mass Index
           </span>
-        </a>
+        </button>
 
-        {/* 4. Age Calculator (External Direct Link) */}
-        <a
-          href="https://www.calculator.net/age-calculator.html"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="bg-gradient-to-br from-orange-50/90 via-amber-50/40 to-white rounded-2xl p-2 sm:p-2.5 flex flex-col items-center justify-center text-center shadow-2xs border border-orange-200/80 hover:border-orange-400 hover:shadow-xs hover:scale-[1.02] active:scale-95 transition-all duration-75 cursor-pointer min-h-[84px] sm:min-h-[88px] group touch-manipulation no-underline"
-          title="Age Calculator - calculator.net"
+        {/* 4. Age Calculator (Secure External Link - Protected against URL inspection & status bar preview) */}
+        <button
+          onClick={() => openSecureExternalLink('https://www.calculator.net/age-calculator.html')}
+          onContextMenu={(e) => e.preventDefault()}
+          className="bg-gradient-to-br from-orange-50/90 via-amber-50/40 to-white rounded-2xl p-2 sm:p-2.5 flex flex-col items-center justify-center text-center shadow-2xs border border-orange-200/80 hover:border-orange-400 hover:shadow-xs hover:scale-[1.02] active:scale-95 transition-all duration-75 cursor-pointer min-h-[84px] sm:min-h-[88px] group touch-manipulation select-none"
         >
           <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-orange-100/90 border border-orange-200/70 flex items-center justify-center mb-1 shadow-2xs group-hover:scale-105 transition-transform relative">
             <Calendar className="w-5 h-5 text-orange-700 stroke-[2.2]" />
@@ -357,12 +369,13 @@ export const StudentToolsProfile: React.FC<StudentToolsProfileProps> = ({
           <span className="text-[8.5px] sm:text-[9px] font-medium text-orange-600/90 mt-0.5 truncate max-w-full px-0.5 leading-none">
             Age & Birth Date
           </span>
-        </a>
+        </button>
 
         {/* 5. Formulas */}
         <button
           onClick={() => setActiveModal('formulas')}
-          className="bg-gradient-to-br from-purple-50/90 via-fuchsia-50/40 to-white rounded-2xl p-2 sm:p-2.5 flex flex-col items-center justify-center text-center shadow-2xs border border-purple-200/80 hover:border-purple-400 hover:shadow-xs hover:scale-[1.02] active:scale-95 transition-all duration-75 cursor-pointer min-h-[84px] sm:min-h-[88px] group touch-manipulation"
+          onContextMenu={(e) => e.preventDefault()}
+          className="bg-gradient-to-br from-purple-50/90 via-fuchsia-50/40 to-white rounded-2xl p-2 sm:p-2.5 flex flex-col items-center justify-center text-center shadow-2xs border border-purple-200/80 hover:border-purple-400 hover:shadow-xs hover:scale-[1.02] active:scale-95 transition-all duration-75 cursor-pointer min-h-[84px] sm:min-h-[88px] group touch-manipulation select-none"
         >
           <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-purple-100/90 border border-purple-200/70 flex items-center justify-center mb-1 shadow-2xs group-hover:scale-105 transition-transform">
             <FlaskConical className="w-5 h-5 text-purple-700 stroke-[2.2]" />
@@ -375,10 +388,11 @@ export const StudentToolsProfile: React.FC<StudentToolsProfileProps> = ({
           </span>
         </button>
 
-        {/* 6. GPA Calculator */}
+        {/* 6. GPA Calculator (Secure External Link - Protected against URL inspection & status bar preview) */}
         <button
-          onClick={() => setActiveModal('gpaCalc')}
-          className="bg-gradient-to-br from-yellow-50/90 via-amber-50/40 to-white rounded-2xl p-2 sm:p-2.5 flex flex-col items-center justify-center text-center shadow-2xs border border-amber-200/80 hover:border-amber-400 hover:shadow-xs hover:scale-[1.02] active:scale-95 transition-all duration-75 cursor-pointer min-h-[84px] sm:min-h-[88px] group touch-manipulation"
+          onClick={() => openSecureExternalLink('https://www.calculator.net/gpa-calculator.html')}
+          onContextMenu={(e) => e.preventDefault()}
+          className="bg-gradient-to-br from-yellow-50/90 via-amber-50/40 to-white rounded-2xl p-2 sm:p-2.5 flex flex-col items-center justify-center text-center shadow-2xs border border-amber-200/80 hover:border-amber-400 hover:shadow-xs hover:scale-[1.02] active:scale-95 transition-all duration-75 cursor-pointer min-h-[84px] sm:min-h-[88px] group touch-manipulation select-none"
         >
           <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-yellow-100/90 border border-amber-200/70 flex items-center justify-center mb-1 shadow-2xs group-hover:scale-105 transition-transform">
             <span className="font-mono text-xs font-black text-amber-800">GPA</span>
