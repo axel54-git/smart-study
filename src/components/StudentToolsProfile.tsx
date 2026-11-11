@@ -335,10 +335,13 @@ export const StudentToolsProfile: React.FC<StudentToolsProfileProps> = ({
           </span>
         </button>
 
-        {/* 4. Age Calculator */}
-        <button
-          onClick={() => setActiveModal('ageCalc')}
-          className="bg-gradient-to-br from-orange-50/90 via-amber-50/40 to-white rounded-2xl p-2 sm:p-2.5 flex flex-col items-center justify-center text-center shadow-2xs border border-orange-200/80 hover:border-orange-400 hover:shadow-xs hover:scale-[1.02] active:scale-95 transition-all duration-75 cursor-pointer min-h-[84px] sm:min-h-[88px] group touch-manipulation"
+        {/* 4. Age Calculator (External Direct Link) */}
+        <a
+          href="https://www.calculator.net/age-calculator.html"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="bg-gradient-to-br from-orange-50/90 via-amber-50/40 to-white rounded-2xl p-2 sm:p-2.5 flex flex-col items-center justify-center text-center shadow-2xs border border-orange-200/80 hover:border-orange-400 hover:shadow-xs hover:scale-[1.02] active:scale-95 transition-all duration-75 cursor-pointer min-h-[84px] sm:min-h-[88px] group touch-manipulation no-underline"
+          title="Age Calculator - calculator.net"
         >
           <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-orange-100/90 border border-orange-200/70 flex items-center justify-center mb-1 shadow-2xs group-hover:scale-105 transition-transform relative">
             <Calendar className="w-5 h-5 text-orange-700 stroke-[2.2]" />
@@ -350,7 +353,7 @@ export const StudentToolsProfile: React.FC<StudentToolsProfileProps> = ({
           <span className="text-[8.5px] sm:text-[9px] font-medium text-orange-600/90 mt-0.5 truncate max-w-full px-0.5 leading-none">
             Age & Birth Date
           </span>
-        </button>
+        </a>
 
         {/* 5. Formulas */}
         <button
